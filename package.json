@@ -1,0 +1,29 @@
+{
+  "name": "evacuation-simulator",
+  "version": "0.2.0",
+  "description": "Multi-floor desktop evacuation planning and training prototype",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "org.evacuation.simulator",
+    "productName": "Evacuation Simulator",
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "package.json"
+    ]
+  }
+}
