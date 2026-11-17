@@ -1,7 +1,7 @@
 {
   "name": "evacuation-simulator",
-  "version": "0.2.0",
-  "description": "Multi-floor desktop evacuation planning and training prototype",
+  "version": "0.4.0",
+  "description": "Multi-floor desktop evacuation planning, simulation and training prototype",
   "main": "main.js",
   "scripts": {
     "start": "electron .",

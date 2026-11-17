@@ -1,147 +1,372 @@
 <!DOCTYPE html>
 <html lang="bg">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Evacuation Simulator</title>
-<style>
-:root{--bg:#0b1220;--panel:#111c2e;--panel2:#17243a;--line:#263750;--txt:#e8effa;--muted:#91a4bf;--cyan:#42d3c5;--blue:#639cff;--red:#ff657a;--green:#43d49a;--amber:#f5bb57}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:14px Inter,Segoe UI,Arial,sans-serif}
-header{height:68px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0e1828}
-.brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:17px;letter-spacing:.3px}.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--cyan),#4d86ff);display:grid;place-items:center;color:#071321;font-size:19px}
-.sub{color:var(--muted);font-size:12px;margin-top:3px}.headright{display:flex;gap:10px;align-items:center}
-.pill{border:1px solid var(--line);border-radius:20px;padding:7px 11px;color:var(--muted);font-size:12px}
-main{display:grid;grid-template-columns:250px minmax(400px,1fr) 285px;gap:14px;padding:14px;height:calc(100vh - 68px)}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:auto}
-.panel h3{margin:0 0 13px;font-size:13px;color:#cbd8eb;letter-spacing:.5px;text-transform:uppercase}
-.side{padding:16px}.group{padding:0 0 17px;margin-bottom:16px;border-bottom:1px solid var(--line)}
-button,select,input{font:inherit}button{border:1px solid var(--line);background:var(--panel2);color:var(--txt);border-radius:9px;padding:9px 11px;cursor:pointer;transition:.15s}
-button:hover{border-color:var(--cyan);transform:translateY(-1px)}button.primary{background:var(--cyan);border-color:var(--cyan);color:#071b24;font-weight:800}
-button.danger{border-color:#773747;color:#ff9aa8}button.small{padding:7px 9px;font-size:12px}
-.btnrow{display:flex;gap:7px;flex-wrap:wrap}.btnrow button{flex:1}
-select,input{width:100%;background:#0c1727;color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:9px;margin:5px 0 10px;outline:none}
-label{display:block;color:var(--muted);font-size:12px;margin-top:8px}
-.tool{width:100%;text-align:left;margin:4px 0;display:flex;align-items:center;gap:9px}.tool.active{border-color:var(--cyan);background:#15313a}
-.workspace{display:flex;flex-direction:column;gap:12px;min-width:0}
-.toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
-.toolbar .left,.toolbar .right{display:flex;align-items:center;gap:8px}.toolbar select{width:auto;margin:0;min-width:130px}
-.canvaswrap{flex:1;min-height:300px;background:#0d1828;border:1px solid var(--line);border-radius:14px;overflow:hidden;position:relative}
-#floor{width:100%;height:100%;display:block;cursor:crosshair}
-.canvasnote{position:absolute;left:14px;bottom:12px;color:#8194ad;font-size:11px;background:#0b1220cc;padding:7px 10px;border-radius:8px;pointer-events:none}
-.bottomstats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}.stat .n{font-size:23px;font-weight:800;margin-top:6px}.stat .k{color:var(--muted);font-size:11px}
-.rightpanel{padding:16px}.scenario{border:1px solid var(--line);padding:10px;border-radius:10px;margin:7px 0;cursor:pointer}.scenario.selected{border-color:var(--cyan);background:#12303a}.object.selected rect,.object.selected circle{stroke:#fff!important;stroke-width:3!important}.object.selected{filter:drop-shadow(0 0 5px #42d3c5)}.scenario strong{display:block;margin-bottom:4px}.scenario span{font-size:11px;color:var(--muted)}
-.log{font-size:12px;line-height:1.6;color:var(--muted);max-height:155px;overflow:auto}.legend{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;color:var(--muted)}.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
-.progress{height:7px;background:#23334a;border-radius:10px;overflow:hidden;margin:10px 0}.progress>div{height:100%;width:0;background:var(--green);transition:width .2s}
-.note{color:var(--muted);font-size:11px;line-height:1.5}
-@media(max-width:1150px){main{grid-template-columns:210px minmax(350px,1fr);height:auto;min-height:calc(100vh - 68px)}.rightpanel{grid-column:1/-1}.bottomstats{grid-template-columns:repeat(4,1fr)}}
-</style></head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Evacuation Simulator v0.4</title>
+<link rel="stylesheet" href="styles.css">
+</head>
 <body>
-<header><div class="brand"><div class="logo">⌂</div><div>EVACUATION SIMULATOR<div class="sub">DESKTOP EDITION · TRAINING PROTOTYPE</div></div></div><div class="headright"><span class="pill">● Локален проект</span><span class="pill">v0.2.0</span></div></header>
+<header>
+  <div class="brand">
+    <div class="logo">⌂</div>
+    <div>
+      <div class="brand-title">EVACUATION SIMULATOR</div>
+      <div class="sub"><span id="projectNameLabel">Нов проект</span> · DESKTOP TRAINING PROTOTYPE</div>
+    </div>
+  </div>
+  <div class="headright">
+    <span class="pill" id="dirtyPill">● Нов проект</span>
+    <span class="pill" id="autosavePill">Авто-запис: изкл.</span>
+    <span class="pill">v0.4.0</span>
+    <button id="newProject" class="small">Нов</button>
+    <button id="loadSample" class="small">Примерен план</button>
+    <button id="tourBtn" class="small">✦ Обучение</button>
+    <button id="openSettings" class="small">⚙ Настройки</button>
+    <button id="openHelp" class="small">? Помощ</button>
+  </div>
+</header>
+
 <main>
-<aside class="panel side">
- <div class="group"><h3>Сграда</h3><label>Етаж</label><select id="floorSelect"><option value="0">Етаж 1</option></select><div class="btnrow"><button id="addFloor" class="small">＋ Етаж</button><button id="renameFloor" class="small">Преименувай</button></div></div>
- <div class="group"><h3>Редактор на план</h3>
-  <button class="tool active" data-tool="select">↖ Избор / преместване</button>
-  <button class="tool" data-tool="room">▧ Добави помещение</button>
-  <button class="tool" data-tool="corridor">↔ Добави коридор</button>
-  <button class="tool" data-tool="door">▱ Добави врата</button>
-  <button class="tool" data-tool="exit">⇧ Аварийен изход</button>
-  <button class="tool" data-tool="stairs">▤ Стълбище</button>
-  <button class="tool" data-tool="people">● Добави хора</button>
-  <button class="tool" data-tool="hazard">⚠ Маркирай опасна зона</button>
-  <p class="note">Избери инструмент и щракни върху плана. За помещение щракни два пъти: начален и краен ъгъл.</p>
- </div>
- <div class="group"><h3>Помещение / група</h3>
-  <label>Име на групата</label><input id="groupName" value="Класна стая 1">
-  <label>Брой хора</label><input id="peopleCount" type="number" min="1" max="200" value="24">
-  <label>Учители / придружители</label><input id="teacherCount" type="number" min="0" max="20" value="1">
-  <label>Ширина на прохода (м)</label><input id="width" type="number" min="0.5" max="10" step=".1" value="1.2">
- </div>
- <div class="group"><h3>Избран обект</h3><div class="note" id="selectionInfo">Няма избран обект.</div><div class="btnrow"><button id="editSelected" class="small">Редактирай</button><button id="deleteSelected" class="small danger">Изтрий</button></div><div class="btnrow" style="margin-top:7px"><button id="removeFloor" class="small danger">Премахни етаж</button></div></div>
- <div class="group"><h3>Файлове</h3><div class="btnrow"><button id="saveProject" class="small primary">Запази проект</button><button id="loadProject" class="small">Отвори проект</button></div><div class="btnrow" style="margin-top:7px"><button id="importPdf" class="small">Прикачи PDF</button><button id="openPdf" class="small">Отвори PDF</button></div><div class="note" id="pdfStatus">Няма прикачен PDF план.</div><div class="btnrow" style="margin-top:7px"><button id="exportMap" class="small">Експорт карта</button><button id="printMap" class="small">Печат</button></div><button id="reset" class="small danger" style="width:100%;margin-top:7px">Нулирай плана</button></div>
-</aside>
-<section class="workspace">
- <div class="toolbar"><div class="left"><strong id="floorTitle">Етаж 1</strong><span class="pill" id="objectCount">0 обекта</span></div><div class="right"><button id="undo" class="small">↶ Отмени</button><button id="run" class="primary">▶ Стартирай</button><button id="pause" class="small">Ⅱ Пауза</button></div></div>
- <div class="canvaswrap"><svg id="floor" viewBox="0 0 900 590" aria-label="Редактор на етажен план"><defs><pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse"><path d="M25 0H0V25" fill="none" stroke="#1b2a40" stroke-width="1"/></pattern></defs><rect width="900" height="590" fill="url(#grid)"/></svg><div class="canvasnote">РАБОТНА ЗОНА · ЩРАКНИ ЗА ДА ДОБАВИШ ОБЕКТ</div></div>
- <div class="bottomstats"><div class="stat"><div class="k">ОБЩО ХОРА</div><div class="n" id="sPeople">0</div></div><div class="stat"><div class="k">В БЕЗОПАСНОСТ</div><div class="n" id="sSafe">0</div></div><div class="stat"><div class="k">ВРЕМЕ</div><div class="n" id="sTime">0 s</div></div><div class="stat"><div class="k">ПРОГРЕС</div><div class="n" id="sProgress">0%</div></div></div>
-</section>
-<aside class="panel rightpanel">
- <div class="group"><h3>Сценарий</h3>
-  <div class="scenario selected" data-scenario="fire"><strong>🔥 Пожар</strong><span>Опасна зона и предварително одобрени изходи</span></div>
-  <div class="scenario" data-scenario="quake"><strong>〰 Земетресение</strong><span>Защитно поведение и евакуация след разклащането</span></div>
-  <div class="scenario" data-scenario="flood"><strong>🌊 Наводнение</strong><span>Зона с вода и безопасни по-високи нива</span></div>
-  <div class="scenario" data-scenario="lockdown"><strong>🔒 Заплаха / блокиране</strong><span>Защитно укриване и следване на указанията на службите</span></div>
-  <label>Начална зона на инцидента</label><select id="hazardSelect"><option value="auto">Автоматично / маркирана зона</option></select>
- </div>
- <div class="group"><h3>Симулация</h3><label>Скорост на възпроизвеждане</label><select id="speed"><option value="1">1× Нормална</option><option value="2">2× Бърза</option><option value="0.5">0.5× Бавна</option></select><div class="progress"><div id="bar"></div></div><div class="note" id="status">Готово за симулация. Добави хора и изходи.</div></div>
- <div class="group"><h3>Отчет</h3><div class="legend"><div><i class="dot" style="background:#42d3c5"></i>Изход</div><div><i class="dot" style="background:#639cff"></i>Хора</div><div><i class="dot" style="background:#ff657a"></i>Опасност</div><div><i class="dot" style="background:#43d49a"></i>Безопасно</div></div><p class="note" id="report">Няма проведена симулация.</p><div class="log" id="log">• Проектът е създаден. Добави помещения, хора и изход.</div></div>
- <p class="note">⚠ Само учебен прототип. Реалните евакуационни решения трябва да следват одобрения план на сградата и указанията на компетентните служби.</p>
-</aside>
+  <aside class="panel side">
+    <div class="group">
+      <h3>Сграда</h3>
+      <label for="floorSelect">Етаж</label>
+      <select id="floorSelect"></select>
+      <div class="btnrow" style="margin-top:6px">
+        <button id="addFloor" class="small">＋ Етаж</button>
+        <button id="renameFloor" class="small">Преименувай</button>
+      </div>
+      <div class="btnrow" style="margin-top:6px">
+        <button id="duplicateFloor" class="small">Дублирай</button>
+        <button id="removeFloor" class="small danger">Премахни</button>
+      </div>
+      <p class="note" style="margin-top:8px">Стълбища на еднакви позиции в различните етажи се свързват автоматично в обща шахта.</p>
+    </div>
+
+    <div class="group">
+      <h3>Инструменти</h3>
+      <button class="tool active" data-tool="select">↖ Избор / преместване <span class="kbd">V</span></button>
+      <button class="tool" data-tool="room">▧ Помещение <span class="kbd">R</span></button>
+      <button class="tool" data-tool="corridor">↔ Коридор <span class="kbd">C</span></button>
+      <button class="tool" data-tool="door">▱ Врата <span class="kbd">D</span></button>
+      <button class="tool" data-tool="exit">⇧ Авариен изход <span class="kbd">E</span></button>
+      <button class="tool" data-tool="stairs">▤ Стълбище <span class="kbd">S</span></button>
+      <button class="tool" data-tool="people">● Група хора <span class="kbd">P</span></button>
+      <button class="tool" data-tool="hazard">⚠ Опасна зона <span class="kbd">H</span></button>
+      <p class="note" id="toolHint">Избери обект, за да го преместиш. Плъзни за преместване; дръж <strong>Alt</strong> и плъзни за панорама.</p>
+    </div>
+
+    <div class="group">
+      <h3>Нов обект</h3>
+      <div class="field-grid">
+        <div class="full"><label for="groupName">Име</label><input id="groupName" value="Класна стая 1"></div>
+        <div><label for="peopleCount">Хора</label><input id="peopleCount" type="number" min="0" max="500" value="24"></div>
+        <div><label for="teacherCount">Учители</label><input id="teacherCount" type="number" min="0" max="50" value="1"></div>
+        <div><label for="width">Ширина (м)</label><input id="width" type="number" min="0.3" max="10" step=".1" value="1.2"></div>
+        <div><label for="hazardRadius">Радиус (м)</label><input id="hazardRadius" type="number" min="0.3" max="20" step=".1" value="1.2"></div>
+      </div>
+      <p class="note">За помещение/коридор: плъзни правоъгълник или щракни два пъти. За врата, изход, стълбище, хора и опасност: едно щракване.</p>
+    </div>
+
+    <div class="group">
+      <h3>Избран обект</h3>
+      <div id="objectEditor"><p class="note">Няма избран обект. Щракни върху обект от плана.</p></div>
+      <div class="btnrow" style="margin-top:8px">
+        <button id="duplicateSelected" class="small">Дублирай</button>
+        <button id="deleteSelected" class="small danger">Изтрий</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <h3>Проект</h3>
+      <div class="btnrow">
+        <button id="saveProject" class="small primary">Запази</button>
+        <button id="openProject" class="small">Отвори</button>
+      </div>
+      <div class="btnrow" style="margin-top:6px">
+        <button id="exportSvg" class="small">SVG</button>
+        <button id="exportPng" class="small">PNG</button>
+        <button id="exportPdf" class="small">PDF отчет</button>
+      </div>
+      <button id="clearFloor" class="small danger" style="width:100%;margin-top:6px">Изчисти текущия етаж</button>
+      <p class="note" id="projectStatus" style="margin-top:6px">Проектът се запазва като .evac.json файл.</p>
+    </div>
+
+    <div class="group">
+      <h3>Материали</h3>
+      <div class="btnrow">
+        <button id="attachFiles" class="small primary">＋ Прикачи файл</button>
+        <button id="clearBackdrop" class="small">Без подложка</button>
+      </div>
+      <div id="attachmentsList"><p class="note">PDF, PNG, JPG, SVG, DOCX, XLSX, TXT и др. Могат да се отварят; изображения и PDF — и като подложка.</p></div>
+      <div id="backdropPanel" style="display:none;margin-top:8px;border-top:1px solid var(--line);padding-top:8px">
+        <div class="note" id="backdropName"></div>
+        <label>Прозрачност <span id="backdropOpacityVal">45%</span></label>
+        <input id="backdropOpacity" type="range" min="0" max="100" value="45">
+        <label>Мащаб <span id="backdropScaleVal">100%</span></label>
+        <input id="backdropScale" type="range" min="10" max="300" value="100">
+        <div class="field-grid">
+          <div><label>Х отместване</label><input id="backdropX" type="number" step="1" value="0"></div>
+          <div><label>Y отместване</label><input id="backdropY" type="number" step="1" value="0"></div>
+        </div>
+        <label>Завъртане <span id="backdropRotationVal">0°</span></label>
+        <input id="backdropRotation" type="range" min="-180" max="180" value="0">
+        <label class="inline" style="margin-top:8px"><input id="backdropVisible" type="checkbox" checked> Показвай подложката</label>
+        <div class="btnrow" style="margin-top:7px">
+          <button id="backdropFit" class="small">Напасни</button>
+          <button id="backdropOpen" class="small">Отвори файла</button>
+        </div>
+      </div>
+      <p class="note" id="fileStatus" style="margin-top:6px"></p>
+    </div>
+  </aside>
+
+  <section class="workspace">
+    <div class="toolbar">
+      <div class="left">
+        <strong id="floorTitle">Етаж 1</strong>
+        <span class="pill" id="objectCount">0 обекта</span>
+        <span class="pill" id="scalePill">25 px = 1 m</span>
+      </div>
+      <div class="mid">
+        <button id="undo" class="icon" title="Отмени (Ctrl+Z)">↶</button>
+        <button id="redo" class="icon" title="Повтори (Ctrl+Y)">↷</button>
+        <span class="sep"></span>
+        <button id="zoomOut" class="icon" title="Намали">−</button>
+        <button id="zoomFit" class="small" title="Покажи целия план">100%</button>
+        <button id="zoomIn" class="icon" title="Увеличи">＋</button>
+      </div>
+      <div class="right">
+        <label class="inline" title="Показва изчислените маршрути"><input id="showRoutes" type="checkbox" checked> Маршрути</label>
+        <select id="speedSelect" title="Скорост на възпроизвеждане">
+          <option value="0.5">0.5×</option>
+          <option value="1">1×</option>
+          <option value="2">2×</option>
+          <option value="4" selected>4×</option>
+          <option value="8">8×</option>
+        </select>
+        <button id="run" class="primary">▶ Стартирай</button>
+        <button id="pause" class="small" disabled>Ⅱ Пауза</button>
+        <button id="stop" class="small" disabled>■ Стоп</button>
+      </div>
+    </div>
+
+    <div class="canvaswrap" id="canvasWrap">
+      <div id="pdfBackdrop" class="pdf-backdrop"></div>
+      <svg id="floor" viewBox="0 0 900 590" aria-label="Редактор на етажен план">
+        <defs>
+          <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
+            <path d="M25 0H0V25" fill="none" stroke="#1b2a40" stroke-width="1"/>
+          </pattern>
+          <marker id="routeArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#42d3c5"/>
+          </marker>
+        </defs>
+        <rect id="gridRect" width="900" height="590" fill="url(#grid)"/>
+      </svg>
+      <div class="canvasnote" id="canvasNote">РАБОТНА ЗОНА · ЩРАКНИ ЗА ДОБАВЯНЕ</div>
+      <div class="coords" id="coords">x: — · y: —</div>
+    </div>
+
+    <div class="bottomstats">
+      <div class="stat"><div class="k">ОБЩО ХОРА</div><div class="n" id="sPeople">0</div></div>
+      <div class="stat"><div class="k">В БЕЗОПАСНОСТ</div><div class="n" id="sSafe">0</div></div>
+      <div class="stat"><div class="k">В ОПАШКА</div><div class="n" id="sQueued">0</div></div>
+      <div class="stat"><div class="k">ВРЕМЕ</div><div class="n" id="sTime">0 s</div></div>
+      <div class="stat"><div class="k">ПРОГРЕС</div><div class="n" id="sProgress">0%</div></div>
+    </div>
+  </section>
+
+  <aside class="panel rightpanel">
+    <div class="group">
+      <h3>Сценарий</h3>
+      <div class="scenario selected" data-scenario="fire"><strong>🔥 Пожар</strong><span>Опасните зони блокират маршрути; хората реагират след зададено време.</span></div>
+      <div class="scenario" data-scenario="quake"><strong>〰 Земетресение</strong><span>Начално изчакване, след което евакуация; стълбищата са с намален капацитет.</span></div>
+      <div class="scenario" data-scenario="flood"><strong>🌊 Наводнение</strong><span>Зоните с вода блокират проходи; използват се достъпните изходи.</span></div>
+      <div class="scenario" data-scenario="lockdown"><strong>🔒 Заплаха / блокиране</strong><span>Защитно укриване без движение; не се моделират действия на нападател.</span></div>
+      <label for="preMovement">Реакция преди движение (s)</label>
+      <input id="preMovement" type="number" min="0" max="600" step="1" placeholder="автоматично">
+      <p class="note" id="scenarioNote">Пожар: 30 s реакция по подразбиране.</p>
+    </div>
+
+    <div class="group">
+      <h3>Разпространение</h3>
+      <label class="inline"><input id="showSpread" type="checkbox" checked> Покажи разпространението на картата</label>
+      <div id="spreadPanel"><p class="note">Добави опасна зона, за да видиш прогноза къде може да се разпространи.</p></div>
+    </div>
+
+    <div class="group">
+      <h3>Симулация</h3>
+      <div class="progress"><div id="bar"></div></div>
+      <div class="note" id="status">Готово за симулация. Добави хора и изход.</div>
+      <div class="note" id="simFloorInfo" style="margin-top:6px"></div>
+      <div id="bottleneckBox" style="margin-top:8px"></div>
+    </div>
+
+    <div class="group">
+      <h3>Проверки</h3>
+      <ul class="warn-list" id="warningsList"><li class="okline">Няма забележки.</li></ul>
+    </div>
+
+    <div class="group">
+      <h3>Маршрути</h3>
+      <div id="routeTable"><p class="note">Добави хора, за да се изчислят маршрути.</p></div>
+    </div>
+
+    <div class="group">
+      <h3>Отчет</h3>
+      <p class="note" id="report">Няма проведена симулация.</p>
+      <div class="log" id="log">• Проектът е създаден. Добави помещения, хора, врати и изход.</div>
+    </div>
+
+    <div class="group">
+      <h3>Легенда</h3>
+      <div class="legend">
+        <div><i class="sq" style="background:#24364d"></i>Помещение</div>
+        <div><i class="sq" style="background:#1c4050"></i>Коридор</div>
+        <div><i class="dot" style="background:#f5bb57"></i>Врата</div>
+        <div><i class="dot" style="background:#42d3c5"></i>Изход</div>
+        <div><i class="dot" style="background:#8c7cff"></i>Стълбище</div>
+        <div><i class="dot" style="background:#639cff"></i>Хора</div>
+        <div><i class="dot" style="background:#ff657a"></i>Опасна зона</div>
+        <div><i class="dot" style="background:#43d49a"></i>В безопасност</div>
+        <div class="wide"><i class="dot" style="background:#f5bb57"></i>Чакащи / опашка &nbsp; <i class="dot" style="background:#b8d7ff"></i>Движещи се</div>
+        <div class="wide"><span style="display:inline-block;width:18px;border-top:2px dashed #42d3c5;vertical-align:middle;margin-right:6px"></span>Евакуационен маршрут</div>
+      </div>
+      <p class="note" style="margin-top:8px">⚠ Учебен модел. Реалните планове се проверяват от компетентни специалисти.</p>
+    </div>
+  </aside>
 </main>
-<script>
-const svg=document.getElementById('floor'), NS='http://www.w3.org/2000/svg';
-let floors=[{name:'Етаж 1',items:[]}], current=0, tool='select', draft=null, selectedId=null, selectedScenario='fire', running=false, timer=null, elapsed=0, safe=0, total=0, agents=[], history=[], pdfReference=null, projectName='Нов проект';
-const $=id=>document.getElementById(id);
-const colors={room:'#24364d',corridor:'#1c4050',door:'#f5bb57',exit:'#42d3c5',stairs:'#8c7cff',people:'#639cff',hazard:'#ff657a'};
-function snapshot(){history.push(JSON.stringify(floors));if(history.length>30)history.shift()}
-function addLog(t){$('log').textContent='• '+String(t)+'\n'+$('log').textContent}
-function item(type,x,y,extra={}){return {id:Date.now()+Math.random(),type,x,y,...extra}}
-function xy(e){let p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;let q=p.matrixTransform(svg.getScreenCTM().inverse());return {x:q.x,y:q.y}}
-function draw(){
- [...svg.querySelectorAll('.object,.agent,.route')].forEach(n=>n.remove());
- let data=floors[current].items;
- data.forEach(o=>{
-  let g=document.createElementNS(NS,'g');g.setAttribute('class','object'+(o.id===selectedId?' selected':''));g.dataset.id=o.id;
-  if(o.type==='room'||o.type==='corridor'){let r=document.createElementNS(NS,'rect');Object.entries({x:o.x,y:o.y,width:o.w,height:o.h,rx:8,fill:colors[o.type],stroke:'#58718f','stroke-width':2}).forEach(([k,v])=>r.setAttribute(k,v));g.append(r);let t=document.createElementNS(NS,'text');t.setAttribute('x',o.x+12);t.setAttribute('y',o.y+24);t.setAttribute('fill','#dce8f8');t.setAttribute('font-size','14');t.textContent=o.name||(o.type==='corridor'?'Коридор':'Помещение');g.append(t);let n=document.createElementNS(NS,'text');n.setAttribute('x',o.x+12);n.setAttribute('y',o.y+43);n.setAttribute('fill','#91a4bf');n.setAttribute('font-size','11');n.textContent=o.type==='room'?((o.people||0)+' ученици · '+(o.teachers||0)+' уч.'):(o.width||1.2)+' м';g.append(n)}
-  else if(o.type==='people'){let c=document.createElementNS(NS,'circle');c.setAttribute('cx',o.x);c.setAttribute('cy',o.y);c.setAttribute('r',9);c.setAttribute('fill',colors.people);g.append(c);let t=document.createElementNS(NS,'text');t.setAttribute('x',o.x+13);t.setAttribute('y',o.y+4);t.setAttribute('fill','#cfe0f6');t.setAttribute('font-size','12');t.textContent=o.count+' души';g.append(t)}
-  else if(o.type==='hazard'){let c=document.createElementNS(NS,'circle');c.setAttribute('cx',o.x);c.setAttribute('cy',o.y);c.setAttribute('r',27);c.setAttribute('fill','#ff657a33');c.setAttribute('stroke',colors.hazard);c.setAttribute('stroke-width',2);g.append(c);let t=document.createElementNS(NS,'text');t.setAttribute('x',o.x-7);t.setAttribute('y',o.y+5);t.setAttribute('fill','#ff9aa8');t.textContent='!';g.append(t)}
-  else {let t=document.createElementNS(NS,'text');t.setAttribute('x',o.x);t.setAttribute('y',o.y);t.setAttribute('fill',colors[o.type]);t.setAttribute('font-size','25');t.setAttribute('font-weight','bold');t.textContent=o.type==='exit'?'⇧':o.type==='stairs'?'▤':'▱';g.append(t);let l=document.createElementNS(NS,'text');l.setAttribute('x',o.x+18);l.setAttribute('y',o.y+4);l.setAttribute('fill','#a9bbd2');l.setAttribute('font-size','11');l.textContent=o.type==='exit'?'Изход':o.type==='stairs'?'Стълбище':'Врата';g.append(l)}
-  svg.append(g);
- });
- agents.forEach(a=>{let c=document.createElementNS(NS,'circle');c.setAttribute('class','agent');c.setAttribute('cx',a.x);c.setAttribute('cy',a.y);c.setAttribute('r',5);c.setAttribute('fill',a.done?'#43d49a':'#b8d7ff');svg.append(c)});
- $('objectCount').textContent=data.length+' обекта';$('sPeople').textContent=floors.reduce((sum,f)=>sum+f.items.filter(x=>x.type==='people'||x.type==='room').reduce((s,x)=>s+(x.type==='people'?x.count:(x.people||0)+(x.teachers||0)),0),0);let sel=data.find(x=>x.id===selectedId);$('selectionInfo').textContent=sel?`${sel.type} · ${sel.name||sel.id} · ширина ${sel.width||'—'} м`:'Няма избран обект.';
- let hs=$('hazardSelect');hs.replaceChildren();let auto=document.createElement('option');auto.value='auto';auto.textContent='Автоматично / маркирана зона';hs.append(auto);data.filter(x=>x.type==='room').forEach(x=>{let op=document.createElement('option');op.value=String(x.id);op.textContent=x.name||'Помещение';hs.append(op)});
-}
-function setTool(t){tool=t;document.querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.tool===t))}
-document.querySelectorAll('.tool').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));
-svg.addEventListener('click',e=>{
- if(running)return;let p=xy(e), data=floors[current].items;
- if(tool==='room'||tool==='corridor'){if(!draft){draft=p;addLog('Избери втори ъгъл за '+(tool==='room'?'помещението':'коридора')+'.');return}
-  let x=Math.min(draft.x,p.x),y=Math.min(draft.y,p.y),w=Math.max(tool==='room'?80:35,Math.abs(p.x-draft.x)),h=Math.max(tool==='room'?60:25,Math.abs(p.y-draft.y));
-  snapshot();data.push(item(tool,x,y,{w,h,width:+$('width').value||1.2,name:tool==='room'?($('groupName').value||'Помещение'):'Коридор',people:tool==='room'?(+ $('peopleCount').value||0):0,teachers:tool==='room'?(+ $('teacherCount').value||0):0}));draft=null;addLog('Добавен елемент: '+tool+'.');}
- else if(tool==='people'){snapshot();data.push(item('people',p.x,p.y,{count:+$('peopleCount').value||1,name:$('groupName').value}));addLog('Добавена група хора.')}
- else if(['door','exit','stairs','hazard'].includes(tool)){snapshot();data.push(item(tool,p.x,p.y,{width:+$('width').value||1.2}));addLog('Добавен елемент: '+tool+'.')}
- else if(tool==='select'){let near=[...data].reverse().find(o=>o.type==='room'||o.type==='corridor'?p.x>=o.x&&p.x<=o.x+o.w&&p.y>=o.y&&p.y<=o.y+o.h:Math.hypot((o.x||0)-p.x,(o.y||0)-p.y)<24);if(near){if(selectedId===near.id){snapshot();near.x=p.x;near.y=p.y;addLog('Преместен елемент.')}selectedId=near.id}else selectedId=null;}
- draw();
-});
-$('addFloor').onclick=()=>{snapshot();floors.push({name:'Етаж '+(floors.length+1),items:[]});current=floors.length-1;selectedId=null;refreshFloors();draw()};
-$('removeFloor').onclick=()=>{if(floors.length<2){alert('Проектът трябва да има поне един етаж.');return}if(confirm('Да се премахне ли текущият етаж и всички негови обекти?')){snapshot();floors.splice(current,1);current=Math.max(0,current-1);selectedId=null;refreshFloors();draw()}};
-$('renameFloor').onclick=()=>{let n=prompt('Име на етажа:',floors[current].name);if(n){floors[current].name=n;refreshFloors()}};
-function refreshFloors(){let fs=$('floorSelect');fs.replaceChildren();floors.forEach((f,i)=>{let op=document.createElement('option');op.value=String(i);op.textContent=f.name||('Етаж '+(i+1));fs.append(op)});fs.value=String(current);$('floorTitle').textContent=floors[current].name}
-$('floorSelect').onchange=e=>{current=+e.target.value;selectedId=null;refreshFloors();draw()};
-$('undo').onclick=()=>{if(history.length){floors=JSON.parse(history.pop());current=Math.min(current,floors.length-1);selectedId=null;refreshFloors();draw()}};
-$('deleteSelected').onclick=()=>{let i=floors[current].items.findIndex(x=>x.id===selectedId);if(i>=0){snapshot();floors[current].items.splice(i,1);selectedId=null;draw()}};
-$('editSelected').onclick=()=>{let o=floors[current].items.find(x=>x.id===selectedId);if(!o){alert('Първо избери обект от плана.');return}snapshot();if(o.type==='room'||o.type==='corridor'){let name=prompt('Име:',o.name||'');if(name!==null)o.name=name;let w=prompt('Ширина на прохода (м):',o.width||1.2);if(w!==null&&Number(w)>0)o.width=Number(w);if(o.type==='room'){let p=prompt('Брой ученици/хора:',o.people||0);if(p!==null&&Number(p)>=0)o.people=Number(p);let t=prompt('Брой учители:',o.teachers||0);if(t!==null&&Number(t)>=0)o.teachers=Number(t)}}else if(o.type==='people'){let n=prompt('Брой хора:',o.count);if(n!==null&&Number(n)>0)o.count=Number(n);let name=prompt('Име на групата:',o.name||'Група');if(name!==null)o.name=name}else{let w=prompt('Ширина (м):',o.width||1.2);if(w!==null&&Number(w)>0)o.width=Number(w)}draw()};
-document.querySelectorAll('.scenario').forEach(el=>el.onclick=()=>{document.querySelectorAll('.scenario').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');selectedScenario=el.dataset.scenario;let labels={fire:'Пожар',quake:'Земетресение',flood:'Наводнение',lockdown:'Защитно укриване'};addLog('Избран сценарий: '+labels[selectedScenario]);});
-function start(){if(running)return;let items=floors[current].items;let groups=items.filter(x=>x.type==='people'||x.type==='room');let exits=items.filter(x=>x.type==='exit');total=groups.reduce((s,x)=>s+(x.type==='people'?x.count:(x.people||0)+(x.teachers||0)),0);if(!total){$('status').textContent='Добави хора или попълни броя в помещение.';return}
- if(selectedScenario!=='lockdown'&&!exits.length){$('status').textContent='Добави поне един предварително одобрен авариен изход.';return}
- snapshot();agents=[];groups.forEach(g=>{let n=g.type==='people'?g.count:(g.people||0)+(g.teachers||0);for(let i=0;i<Math.min(n,100);i++)agents.push({x:(g.x||160)+(g.type==='room'?g.w/2:0)+(Math.random()*24-12),y:(g.y||160)+(g.type==='room'?g.h/2:0)+(Math.random()*24-12),done:false})});
- elapsed=0;safe=0;running=true;$('status').textContent='Симулацията се изпълнява (опростен учебен модел).';addLog('Симулацията стартира: '+selectedScenario+'.');
- if(selectedScenario==='lockdown'){$('status').textContent='Учебен режим: групите остават в защитени помещения и изчакват указания.'}
- timer=setInterval(tick,180);$('run').textContent='▶ Изпълнява се';}
-function tick(){elapsed+=.18*(+$('speed').value);let done=0;agents.forEach(a=>{if(a.done){done++;return}
-  if(selectedScenario==='lockdown'){if(elapsed>2)a.done=true;return}
-  let exits=floors[current].items.filter(x=>x.type==='exit');if(!exits.length)return;let target=exits.reduce((best,x)=>Math.hypot(x.x-a.x,x.y-a.y)<Math.hypot(best.x-a.x,best.y-a.y)?x:best,exits[0]);let dx=target.x-a.x,dy=target.y-a.y,d=Math.hypot(dx,dy);if(d<9)a.done=true;else{a.x+=dx/d*2.1*(+$('speed').value);a.y+=dy/d*2.1*(+$('speed').value)}});
- safe=agents.filter(a=>a.done).length;let pct=total?Math.round(safe/agents.length*100):0;$('sSafe').textContent=safe;$('sTime').textContent=elapsed.toFixed(1)+' s';$('sProgress').textContent=pct+'%';$('bar').style.width=pct+'%';draw();
- if(safe===agents.length){stop();$('status').textContent='Симулацията приключи.';$('report').textContent=`Учебен резултат: ${safe} от ${total} души достигат зададеното крайно състояние за ${elapsed.toFixed(1)} секунди. Това не е прогноза за реално време.`;addLog('Симулацията приключи.');}}
-function stop(){running=false;clearInterval(timer);$('run').textContent='▶ Стартирай'}
-$('run').onclick=start;
-$('saveProject').onclick=async()=>{try{let r=await window.evacuationDesktop.saveProject({format:'evacuation-simulator',version:'0.2.0',projectName,updatedAt:new Date().toISOString(),floors,pdfReference});if(!r.canceled){projectName=r.filePath.split(/[\\/]/).pop();addLog('Проектът е запазен: '+projectName)}}catch(e){alert('Грешка при запис: '+e.message)}};
-$('loadProject').onclick=async()=>{try{let r=await window.evacuationDesktop.openProject();if(!r.canceled){floors=r.project.floors;floors.forEach(f=>{if(!Array.isArray(f.items))f.items=[]});current=0;pdfReference=r.project.pdfReference||null;projectName=r.project.projectName||'Зареден проект';selectedId=null;history=[];stop();refreshFloors();draw();$('pdfStatus').textContent=pdfReference?'PDF референция: '+pdfReference:'Няма прикачен PDF план.';addLog('Зареден проект: '+projectName)}}catch(e){alert('Неуспешно отваряне: '+e.message)}};
-$('importPdf').onclick=async()=>{let r=await window.evacuationDesktop.choosePdf();if(!r.canceled){pdfReference=r.filePath;$('pdfStatus').textContent='Прикачен PDF: '+r.filePath;addLog('Прикачен е PDF референтен план. Файлът не е вграден в проекта.')}};
-$('openPdf').onclick=async()=>{if(!pdfReference){alert('Първо прикачи PDF файл.');return}let err=await window.evacuationDesktop.openExternal(pdfReference);if(err)alert('PDF файлът не може да бъде отворен: '+err)};$('pause').onclick=()=>{if(running){stop();$('status').textContent='Симулацията е на пауза.'}};
-$('reset').onclick=()=>{if(confirm('Да се изчистят ли елементите на текущия етаж?')){snapshot();floors[current].items=[];agents=[];safe=0;draw();$('sSafe').textContent='0';$('sTime').textContent='0 s';$('sProgress').textContent='0%';$('report').textContent='Няма проведена симулация.'}};
-$('exportMap').onclick=()=>{let clone=svg.cloneNode(true);clone.setAttribute('xmlns',NS);let blob=new Blob([new XMLSerializer().serializeToString(clone)],{type:'image/svg+xml'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=floors[current].name.replaceAll(' ','_')+'_evacuation_map.svg';a.click();URL.revokeObjectURL(a.href);addLog('Експортирана е карта във SVG формат.')};
-$('printMap').onclick=()=>window.print();
-draw();refreshFloors();$('pdfStatus').textContent='Няма прикачен PDF план.';
-</script></body></html>
+
+<dialog id="settingsDialog">
+  <div class="dialog-head"><h2>Настройки</h2><button class="icon" data-close="settingsDialog">✕</button></div>
+  <div class="dialog-body">
+    <div class="help-grid">
+      <div class="help-card">
+        <h4>Мащаб и физика</h4>
+        <label for="setScale">Пиксели за 1 метър</label>
+        <input id="setScale" type="number" min="2" max="300" step="1">
+        <label for="setFloorHeight">Височина на етаж (м)</label>
+        <input id="setFloorHeight" type="number" min="1" max="20" step=".1">
+        <label for="setWalkSpeed">Скорост на ходене (м/s)</label>
+        <input id="setWalkSpeed" type="number" min=".2" max="3" step=".05">
+        <label for="setFlow">Специфичен поток (души/м/s)</label>
+        <input id="setFlow" type="number" min=".1" max="5" step=".1">
+        <label for="setSpreadSpeed">Скорост на разпространение (м/s)</label>
+        <input id="setSpreadSpeed" type="number" min=".02" max="10" step=".05">
+        <p class="note">Използва се за опасни зони без собствена скорост.</p>
+      </div>
+      <div class="help-card">
+        <h4>Редактор и запис</h4>
+        <label class="inline"><input id="setAutosave" type="checkbox"> Автоматично запазване в браузъра</label>
+        <label class="inline"><input id="setShowRoutes" type="checkbox"> Показвай маршрутите</label>
+        <label class="inline"><input id="setShowGrid" type="checkbox"> Показвай мрежата</label>
+        <label class="inline"><input id="setSnap" type="checkbox"> Прилепвай към мрежа (10 px)</label>
+        <label for="setPreMovementDefault">Реакция по подразбиране (s)</label>
+        <input id="setPreMovementDefault" type="number" min="0" max="600" step="1" placeholder="автоматично според сценария">
+        <p class="note">Празно поле = 30 s за пожар, 15 s за земетресение, 20 s за наводнение.</p>
+      </div>
+    </div>
+    <div class="help-card" style="margin-top:12px">
+      <h4>Авто-запис</h4>
+      <p class="note" id="autosaveInfo">Няма данни.</p>
+      <button id="clearAutosave" class="small danger">Изчисти авто-записа</button>
+    </div>
+  </div>
+  <div class="dialog-foot">
+    <button data-close="settingsDialog">Отказ</button>
+    <button id="settingsSave" class="primary">Запази настройките</button>
+  </div>
+</dialog>
+
+<dialog id="exportDialog">
+  <div class="dialog-head"><h2>Експорт</h2><button class="icon" data-close="exportDialog">✕</button></div>
+  <div class="dialog-body">
+    <label class="inline"><input type="radio" name="exportFormat" value="svg" checked> SVG — векторна карта</label>
+    <label class="inline"><input type="radio" name="exportFormat" value="png"> PNG — изображение</label>
+    <label class="inline"><input type="radio" name="exportFormat" value="pdf"> PDF — отчет с всички етажи</label>
+    <label for="exportScope" style="margin-top:12px">Обхват</label>
+    <select id="exportScope">
+      <option value="current">Текущ етаж</option>
+      <option value="all">Всички етажи (PDF отчет)</option>
+    </select>
+    <label class="inline" style="margin-top:10px"><input id="exportRoutes" type="checkbox" checked> Включи маршрутите</label>
+    <label class="inline"><input id="exportAgents" type="checkbox" checked> Включи хората от последната симулация</label>
+    <label class="inline"><input id="exportLegend" type="checkbox" checked> Включи заглавие и легенда</label>
+    <p class="note">PNG и SVG експортират избрания етаж. PDF отчетът включва всички етажи, статистика и проверки.</p>
+  </div>
+  <div class="dialog-foot">
+    <button data-close="exportDialog">Отказ</button>
+    <button id="exportRun" class="primary">Експортирай</button>
+  </div>
+</dialog>
+
+<dialog id="helpDialog">
+  <div class="dialog-head"><h2>Помощ / v0.4.0</h2><button class="icon" data-close="helpDialog">✕</button></div>
+  <div class="dialog-body">
+    <div class="help-grid">
+      <div class="help-card">
+        <h4>Бърз старт</h4>
+        <ul>
+          <li>Натисни <strong>Примерен план</strong>, за да видиш двуетажна сграда.</li>
+          <li>Начертай помещение и коридор с инструментите.</li>
+          <li>Сложи <strong>врата</strong> на границата между помещение и коридор.</li>
+          <li>Добави <strong>авариен изход</strong> и <strong>стълбище</strong>.</li>
+          <li>Въведи хора в помещението и натисни <strong>Стартирай</strong>.</li>
+        </ul>
+      </div>
+      <div class="help-card">
+        <h4>Управление</h4>
+        <ul>
+          <li><strong>V</strong> избор, <strong>R</strong> помещение, <strong>C</strong> коридор, <strong>D</strong> врата, <strong>E</strong> изход, <strong>S</strong> стълбище, <strong>P</strong> хора, <strong>H</strong> опасност.</li>
+          <li><strong>Ctrl+Z / Ctrl+Y</strong> — отмяна и повторение.</li>
+          <li><strong>Delete</strong> — изтриване; <strong>Esc</strong> — отказ.</li>
+          <li><strong>Alt + плъзгане</strong> — панорама; колело — мащаб.</li>
+        </ul>
+      </div>
+      <div class="help-card">
+        <h4>Как се изчислява</h4>
+        <p>Сградата се превръща в граф: помещения, коридори, врати, изходи и стълбища. Най-краткият достъпен маршрут се търси с Dijkstra. Вратите, изходите и стълбищата имат капацитет в души/секунда и създават опашки.</p>
+      </div>
+      <div class="help-card">
+        <h4>Размери и разпространение</h4>
+        <p>Вратите, изходите, стълбищата и опасните зони имат регулируем размер. Избери обект и плъзни кръгчето вдясно от него или използвай плъзгача в „Избран обект“. При сценарии „Пожар“ и „Наводнение“ опасната зона расте с времето; пунктираните кръгове са прогноза за +30, +60 и +120 s, а панелът „Разпространение“ показва кои помещения и изходи ще бъдат достигнати.</p>
+      </div>
+      <div class="help-card">
+        <h4>Ограничения</h4>
+        <p>Моделът е учебен: не изчислява дим, структурни повреди, реална геометрия на стени, психология на тълпата или сертифицирани времена. Не използвай резултатите за одобряване на реален евакуационен план.</p>
+      </div>
+    </div>
+  </div>
+  <div class="dialog-foot">
+    <button id="startTourFromHelp" class="small">▶ Стартирай обучението</button>
+    <span style="flex:1"></span>
+    <button class="primary" data-close="helpDialog">Разбрах</button>
+  </div>
+</dialog>
+
+<div id="tourOverlay" class="tour-overlay" hidden>
+  <div id="tourSpot" class="tour-spot"></div>
+  <div id="tourTip" class="tour-tip" role="dialog" aria-live="polite">
+    <div class="tour-step" id="tourStepLabel">1 / 1</div>
+    <h3 id="tourTitle">Обучение</h3>
+    <p id="tourText"></p>
+    <div class="tour-actions">
+      <button id="tourSkip" class="small ghost">Пропусни</button>
+      <span class="tour-nav">
+        <button id="tourPrev" class="small">← Назад</button>
+        <button id="tourNext" class="small primary">Напред →</button>
+      </span>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="printReport"></div>
+
+<script src="simulation-engine.js"></script>
+<script src="simulation-runner.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
