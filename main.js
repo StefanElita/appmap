@@ -28,7 +28,7 @@ function mimeFor(filePath) {
 function createWindow() {
   const win = new BrowserWindow({
     width: 1480, height: 960, minWidth: 1120, minHeight: 720,
-    backgroundColor: '#0b1220', title: 'Evacuation Simulator 0.4',
+    backgroundColor: '#0b1220', title: 'Evacuation Simulator 0.5',
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false }
   });
   win.loadFile(path.join(__dirname, 'src', 'index.html'));

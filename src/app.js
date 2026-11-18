@@ -1,14 +1,14 @@
 'use strict';
 
 /* ============================================================
- * Evacuation Simulator v0.4.0 — UI / editor / simulation glue
+ * Evacuation Simulator v0.5.0 — UI / editor / simulation glue
  * ============================================================ */
 
 const $ = id => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
 const SVG_W = 900;
 const SVG_H = 590;
-const APP_VERSION = '0.4.0';
+const APP_VERSION = '0.5.0';
 const AUTOSAVE_KEY = 'evacuation-simulator:autosave:v3';
 const desktop = window.evacuationDesktop || null;
 const EvacSim = window.EvacSim || {};
@@ -46,6 +46,7 @@ let history = { past: [], future: [] };
 let tourActive = false;
 let tourIndex = 0;
 let tourElement = null;
+let libraryPresetId = 'school';
 
 const palette = ['#42d3c5', '#639cff', '#f5bb57', '#8c7cff', '#43d49a', '#ff9f6e', '#d68cff', '#7ee0ff'];
 
@@ -181,10 +182,13 @@ function sanitizeProject(raw) {
         it.count = Math.max(0, Math.round(num(it.count, 0)));
         it.name = it.name || 'Група';
       } else if (it.type === 'hazard') {
-        it.radius = Math.max(6, num(it.radius, 27));
+        it.radius = clamp(num(it.radius, 27), 6, 600);
+        it.spread = it.spread !== false;
+        if (it.spreadSpeed != null) it.spreadSpeed = clamp(num(it.spreadSpeed, 0.4), 0.02, 10);
+        it.maxRadius = clamp(num(it.maxRadius, 30), 1, 500);
         it.name = it.name || 'Опасна зона';
       } else if (it.type === 'door' || it.type === 'exit' || it.type === 'stairs') {
-        it.width = clamp(num(it.width, 1.2), 0.2, 20);
+        it.width = clamp(num(it.width, 1.2), 0.2, 10);
         it.name = it.name || (it.type === 'door' ? 'Врата' : it.type === 'exit' ? 'Изход' : 'Стълбище');
       }
       return it;
@@ -670,12 +674,12 @@ function pointSizeRadius(item) {
   if (!item) return 13;
   if (item.type === 'hazard') return Math.max(6, num(item.radius, 27));
   const base = item.type === 'exit' ? 9 : item.type === 'stairs' ? 10 : 8;
-  return clamp(base + clamp(num(item.width, 1.2), 0.2, 20) * 4.5, 10, 52);
+  return clamp(base + clamp(num(item.width, 1.2), 0.2, 10) * 4.5, 10, 55);
 }
 
 function pointWidthFromRadius(item, radius) {
   const base = item.type === 'exit' ? 9 : item.type === 'stairs' ? 10 : 8;
-  return clamp((radius - base) / 4.5, 0.2, 20);
+  return clamp((radius - base) / 4.5, 0.2, 10);
 }
 
 
@@ -738,7 +742,36 @@ function drawScaleBar() {
   svg.append(g);
 }
 
+function clearSpreadClips() {
+  const defs = svg.querySelector('defs');
+  if (defs) defs.querySelectorAll('[data-spread-clip]').forEach(el => el.remove());
+}
+
+function spreadClipUrl(defs, id, rects) {
+  if (!defs || !rects.length) return null;
+  const clip = svgEl('clipPath', { id, 'data-spread-clip': '1' });
+  rects.forEach(r => clip.append(svgEl('rect', { x: r.x, y: r.y, width: r.w, height: r.h, rx: 8 })));
+  defs.append(clip);
+  return 'url(#' + id + ')';
+}
+
+function spreadRectsAt(model, meta, seconds) {
+  const floorInfo = model && model.floors ? model.floors[meta.floor] : null;
+  if (!floorInfo || !floorInfo.spaces) return [];
+  const times = new Map();
+  (meta.arrivals || []).forEach(a => {
+    if (times.get(a.nodeId) == null || a.time < times.get(a.nodeId)) times.set(a.nodeId, a.time);
+  });
+  return floorInfo.spaces
+    .filter(s => {
+      const t = times.get(s.node.id);
+      return t != null && t <= seconds + 0.001;
+    })
+    .map(s => s.rect);
+}
+
 function drawSpread(layer) {
+  clearSpreadClips();
   if (!project.settings.showSpread) return;
   const scenario = project.settings.scenario;
   if (scenario !== 'fire' && scenario !== 'flood') return;
@@ -747,19 +780,30 @@ function drawSpread(layer) {
   const hazards = (floorInfo && floorInfo.hazards) || [];
   const spreadInfo = (model && model.hazardSpread) || [];
   if (!hazards.length || !spreadInfo.length) return;
+  const defs = svg.querySelector('defs');
   const pxPerMeter = model.pxPerMeter || project.settings.pxPerMeter || 25;
   const time = lastSimState ? lastSimState.time : 0;
   const color = scenario === 'flood' ? '#63b3ff' : '#ff7a45';
   const live = (lastSimState && lastSimState.spread) || [];
+  let clipSeq = 0;
   hazards.forEach(h => {
     const meta = spreadInfo.find(s => sameId(s.refId, h.item.id));
     if (!meta) return;
     const liveEntry = live.find(s => sameId(s.refId, h.item.id));
     const maxPx = h.radius + meta.maxRadius * pxPerMeter;
     const radius = liveEntry ? Math.max(h.radius, liveEntry.radiusPx) : h.radius;
+    const reachedRects = spreadRectsAt(model, meta, time);
+    const reachedClip = spreadClipUrl(defs, 'spreadClip' + (clipSeq++), reachedRects);
+    reachedRects.forEach(r => {
+      layer.append(svgEl('rect', {
+        x: r.x, y: r.y, width: r.w, height: r.h, rx: 8,
+        fill: color, 'fill-opacity': 0.06, stroke: color, 'stroke-opacity': 0.3,
+        'stroke-width': 1, 'stroke-dasharray': '3 5'
+      }));
+    });
     if (radius > h.radius + 2) {
       layer.append(svgEl('circle', {
-        cx: h.x, cy: h.y, r: radius,
+        cx: h.x, cy: h.y, r: radius, 'clip-path': reachedClip,
         fill: color + '22', stroke: color, 'stroke-width': 1.5, 'stroke-dasharray': '5 5'
       }));
       layer.append(svgEl('text', {
@@ -770,8 +814,9 @@ function drawSpread(layer) {
     [30, 60, 120].forEach(dt => {
       const forecast = Math.min(maxPx, h.radius + meta.speed * (time + dt) * pxPerMeter);
       if (forecast <= h.radius + 6) return;
+      const forecastClip = spreadClipUrl(defs, 'spreadClip' + (clipSeq++), spreadRectsAt(model, meta, time + dt));
       layer.append(svgEl('circle', {
-        cx: h.x, cy: h.y, r: forecast,
+        cx: h.x, cy: h.y, r: forecast, 'clip-path': forecastClip,
         fill: 'none', stroke: color, 'stroke-width': 1, 'stroke-dasharray': '2 8', opacity: 0.55
       }));
       layer.append(svgEl('text', {
@@ -1016,6 +1061,13 @@ function updateSpreadPanel() {
     meta.className = 'note';
     meta.textContent = 'Скорост ' + h.speed.toFixed(2) + ' м/с · обхват ' + (radiusPx / pxPerMeter).toFixed(1) + ' м от макс. ' + h.maxRadius + ' м' + (lastSimState ? ' · ' + fmt(time) : '');
     block.append(meta);
+    if (h.totalSpaces) {
+      const reach = document.createElement('div');
+      reach.className = 'note';
+      reach.textContent = 'През врати/изходи: ' + h.reachableSpaces + ' от ' + h.totalSpaces + ' помещения/коридори' +
+        (h.blockedSpaces ? ' · ' + h.blockedSpaces + ' извън обхвата или зад стени' : '');
+      block.append(reach);
+    }
     const targets = h.arrivals.filter(a => a.time > 0.05 && (a.kind === 'space' || a.kind === 'exit' || a.kind === 'stairs'));
     if (!targets.length) {
       const none = document.createElement('p');
@@ -1054,7 +1106,7 @@ function updateSpreadPanel() {
   }
   const foot = document.createElement('p');
   foot.className = 'note';
-  foot.textContent = 'Прогнозата е по графа на сградата. Опасността се разширява с времето; маршрутите не се преизчисляват автоматично.';
+  foot.textContent = 'Опасността се движи само през врати, изходи и стълбища — стените я спират. Прогнозата е приблизителна; маршрутите не се преизчисляват автоматично.';
   box.append(foot);
 }
 
@@ -1255,9 +1307,10 @@ function renderObjectEditor() {
     addField(grid, 'X', Math.round(item.x), { type: 'number', step: 1 }, value => { item.x = clamp(num(value, item.x), 0, SVG_W); });
     addField(grid, 'Y', Math.round(item.y), { type: 'number', step: 1 }, value => { item.y = clamp(num(value, item.y), 0, SVG_H); });
   } else if (item.type === 'hazard') {
+    const maxHazardMeters = Math.max(20, Math.ceil(600 / pxPerMeter));
     addField(grid, 'Име', item.name || '', { full: true }, value => { item.name = value; });
-    addField(grid, 'Радиус (м)', (num(item.radius, 27) / pxPerMeter).toFixed(2), { type: 'number', min: 0.2, max: 20, step: 0.1 }, value => { item.radius = clamp(num(value, 1.2) * pxPerMeter, 6, 600); });
-    addRange(grid, 'Плъзгач за радиус', (num(item.radius, 27) / pxPerMeter), 0.3, 20, 0.1, v => v.toFixed(1) + ' м', value => { item.radius = clamp(value * pxPerMeter, 6, 600); });
+    addField(grid, 'Радиус (м)', (num(item.radius, 27) / pxPerMeter).toFixed(2), { type: 'number', min: 0.2, max: maxHazardMeters, step: 0.1 }, value => { item.radius = clamp(num(value, 1.2) * pxPerMeter, 6, 600); });
+    addRange(grid, 'Плъзгач за радиус', (num(item.radius, 27) / pxPerMeter), 0.3, maxHazardMeters, 0.1, v => v.toFixed(1) + ' м', value => { item.radius = clamp(value * pxPerMeter, 6, 600); });
     addField(grid, 'X', Math.round(item.x), { type: 'number', step: 1 }, value => { item.x = clamp(num(value, item.x), 0, SVG_W); });
     addField(grid, 'Y', Math.round(item.y), { type: 'number', step: 1 }, value => { item.y = clamp(num(value, item.y), 0, SVG_H); });
     addCheckbox(grid, 'Разпространява се във времето', item.spread !== false, value => { item.spread = value; });
@@ -1269,8 +1322,8 @@ function renderObjectEditor() {
     addField(grid, 'Макс. обхват (м)', item.maxRadius == null ? 30 : item.maxRadius, { type: 'number', min: 1, max: 500, step: 1 }, value => { item.maxRadius = clamp(num(value, 30), 1, 500); });
   } else {
     addField(grid, 'Име', item.name || '', { full: true }, value => { item.name = value; });
-    addField(grid, 'Ширина (м)', item.width || 1.2, { type: 'number', min: 0.2, max: 20, step: 0.1 }, value => { item.width = clamp(num(value, 1.2), 0.2, 20); });
-    addRange(grid, 'Плъзгач за размер', num(item.width, 1.2), 0.3, 8, 0.1, v => v.toFixed(1) + ' м', value => { item.width = clamp(value, 0.2, 20); });
+    addField(grid, 'Ширина (м)', item.width || 1.2, { type: 'number', min: 0.2, max: 10, step: 0.1 }, value => { item.width = clamp(num(value, 1.2), 0.2, 10); });
+    addRange(grid, 'Плъзгач за размер', num(item.width, 1.2), 0.3, 10, 0.1, v => v.toFixed(1) + ' м', value => { item.width = clamp(value, 0.2, 10); });
     addField(grid, 'X', Math.round(item.x), { type: 'number', step: 1 }, value => { item.x = clamp(num(value, item.x), 0, SVG_W); });
     addField(grid, 'Y', Math.round(item.y), { type: 'number', step: 1 }, value => { item.y = clamp(num(value, item.y), 0, SVG_H); });
     if (item.type === 'stairs') {
@@ -1640,7 +1693,7 @@ function createPointItem(type, point) {
   const target = clampPoint({ x: snapValue(point.x), y: snapValue(point.y) });
   const item = { id: uid(), type, x: target.x, y: target.y };
   if (type === 'door' || type === 'exit' || type === 'stairs') {
-    item.width = clamp(num($('width').value, 1.2), 0.2, 20);
+    item.width = clamp(num($('width').value, 1.2), 0.2, 10);
     item.name = nextPointName(type === 'door' ? 'Врата' : type === 'exit' ? 'Изход' : 'Стълбище', type);
   } else if (type === 'people') {
     item.count = Math.max(1, Math.round(num($('peopleCount').value, 1)));
@@ -2371,7 +2424,7 @@ function buildExportSvg(options) {
     clone.append(svgEl('rect', { x: 0, y: 590, width: 900, height: 70, fill: '#0e1828' }));
     clone.append(svgEl('line', { x1: 0, y1: 590, x2: 900, y2: 590, stroke: '#263750', 'stroke-width': 1 }));
     clone.append(svgEl('text', { x: 20, y: 617, fill: '#e8effa', 'font-size': 16, 'font-weight': 700 }, project.projectName || 'Evacuation Simulator'));
-    clone.append(svgEl('text', { x: 20, y: 636, fill: '#91a4bf', 'font-size': 11 }, (floor.name || '') + ' · учебен прототип v0.4.0 · ' + (project.settings.pxPerMeter || 25) + ' px = 1 m'));
+    clone.append(svgEl('text', { x: 20, y: 636, fill: '#91a4bf', 'font-size': 11 }, (floor.name || '') + ' · учебен прототип v0.5.0 · ' + (project.settings.pxPerMeter || 25) + ' px = 1 m'));
     clone.append(svgEl('text', { x: 20, y: 651, fill: '#6f839e', 'font-size': 10 }, 'Легенда: помещение · коридор · врата · изход · стълбище · хора · опасна зона · безопасност · маршрут'));
     clone.append(svgEl('text', { x: 690, y: 617, fill: '#91a4bf', 'font-size': 10 }, new Date().toLocaleString('bg-BG')));
     const activeBackdrop = floor.backdrop;
@@ -2493,7 +2546,7 @@ async function buildPrintReport(scope, options) {
   }).join('');
   const warnings = (model.warnings || []).map(w => '<li>' + escapeHtml(w) + '</li>').join('');
   const html = '<h1>Evacuation Simulator — отчет</h1>' +
-    '<div class="meta">Учебен прототип v0.4.0 · не е сертифициран инструмент за проектиране</div>' +
+    '<div class="meta">Учебен прототип v0.5.0 · не е сертифициран инструмент за проектиране</div>' +
     '<h2>Обобщение</h2>' + summaryTable +
     (floorSections || '') +
     '<h2>Маршрути</h2><table><tr><th>Група</th><th>Хора</th><th>Етаж</th><th>Изход</th><th>Очаквано време</th><th>Статус</th></tr>' + (groupRows || '<tr><td colspan="6">Няма групи.</td></tr>') + '</table>' +
@@ -2771,6 +2824,95 @@ function loadSample() {
   showToast('Примерният план е зареден. Натисни „Стартирай“.');
 }
 
+/* ------------------------- test building library ------------------------- */
+
+function libraryOptions() {
+  return {
+    preset: libraryPresetId,
+    seed: clamp(num($('libSeed').value, 1), 1, 999999),
+    floors: clamp(num($('libFloors').value, 2), 1, 6),
+    roomsPerSide: clamp(num($('libRooms').value, 3), 1, 5),
+    people: clamp(num($('libPeople').value, 24), 0, 200),
+    hazard: $('libHazard').value
+  };
+}
+
+function renderLibraryPresets() {
+  const box = $('libraryPresets');
+  if (!box || !window.BuildingLibrary) return;
+  box.replaceChildren();
+  BuildingLibrary.PRESETS.forEach(preset => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'library-card' + (preset.id === libraryPresetId ? ' selected' : '');
+    const title = document.createElement('strong');
+    title.textContent = preset.title;
+    const desc = document.createElement('span');
+    desc.textContent = preset.description;
+    const meta = document.createElement('em');
+    meta.textContent = preset.floors + ' ет. · ' + (preset.roomsPerSide * 2) + ' стаи/ет. · ~' + preset.people + ' души';
+    card.append(title, desc, meta);
+    card.addEventListener('click', () => {
+      libraryPresetId = preset.id;
+      $('libFloors').value = preset.floors;
+      $('libRooms').value = preset.roomsPerSide;
+      $('libPeople').value = preset.people;
+      $('libHazard').value = preset.hazard || 'none';
+      renderLibraryPresets();
+      updateLibrarySummary();
+    });
+    box.append(card);
+  });
+}
+
+function updateLibrarySummary() {
+  const box = $('libSummary');
+  if (!box) return;
+  if (!window.BuildingLibrary) {
+    box.textContent = 'Модулът за генериране не е зареден.';
+    return;
+  }
+  const testProject = BuildingLibrary.generate(libraryOptions());
+  box.textContent = BuildingLibrary.summaryText(testProject) + ' · seed ' + libraryOptions().seed;
+}
+
+function openLibraryDialog() {
+  if (!window.BuildingLibrary) {
+    showToast('Библиотеката с тестови сгради не е заредена.', true);
+    return;
+  }
+  renderLibraryPresets();
+  updateLibrarySummary();
+  const dialog = $('libraryDialog');
+  if (dialog && !dialog.open) dialog.showModal();
+}
+
+function generateLibraryBuilding() {
+  if (!window.BuildingLibrary) {
+    showToast('Библиотеката с тестови сгради не е заредена.', true);
+    return;
+  }
+  if ((dirty || project.floors.some(f => f.items.length)) && !confirm('Да се зареди ли генерираната тестова сграда? Текущите обекти ще бъдат заменени.')) return;
+  const generated = BuildingLibrary.generate(libraryOptions());
+  stopSimulation(true);
+  project = generated;
+  currentFloor = 0;
+  selectedId = null;
+  history = { past: [], future: [] };
+  previewModel = null;
+  revision++;
+  attachmentMeta.clear();
+  dirty = true;
+  autosaveEnabled = project.settings.autosave !== false;
+  fitView();
+  afterProjectChanged();
+  updateAutosaveInfo();
+  writeAutosave();
+  closeDialog('libraryDialog');
+  addLog('Заредена тестова сграда: ' + project.projectName + ' · ' + totalPeople() + ' души.');
+  showToast('Тестовата сграда е заредена. Натисни „Стартирай“.');
+}
+
 /* ----------------------------- events ----------------------------- */
 
 function closeDialog(id) {
@@ -2863,102 +3005,107 @@ function onKeyUp(event) {
 const TOUR_STEPS = [
   {
     target: '#loadSample',
-    title: '1. Примерен план',
+    title: 'Примерен план',
     text: 'Най-бързият старт е „Примерен план“. Ще заредиш двуетажна учебна сграда с помещения, коридори, врати, изходи и хора.'
   },
   {
+    target: '#openLibrary',
+    title: 'Библиотека с тестови сгради',
+    text: 'Оттук генерираш училище, офис, хотел, болница или търговски център с избран seed, брой етажи, стаи и хора. Сградите са удобни за тестове и демонстрации.'
+  },
+  {
     target: '#floorSelect',
-    title: '2. Етажи',
+    title: 'Етажи',
     text: 'Тук превключваш между етажите. „＋ Етаж“ добавя нов, а „Дублирай“ копира текущия. Стълбищата на еднакви позиции се свързват автоматично.'
   },
   {
     target: '.tool[data-tool="room"]',
-    title: '3. Помещение',
+    title: 'Помещение',
     text: 'Избери „Помещение“ и плъзни правоъгълник върху плана (или щракни два пъти). След това задай име, хора, учители и ширина.'
   },
   {
     target: '.tool[data-tool="corridor"]',
-    title: '4. Коридор',
+    title: 'Коридор',
     text: 'Коридорът свързва помещенията. Начертай го по същия начин. Вратите и изходите трябва да попадат върху него.'
   },
   {
     target: '.tool[data-tool="door"]',
-    title: '5. Врати и размер',
+    title: 'Врати и размер',
     text: 'Щракни на границата между помещение и коридор, за да сложиш врата. Избери я и плъзни кръгчето вдясно от нея — така променяш ширината. Можеш и с полето/плъзгача „Избран обект“.'
   },
   {
     target: '.tool[data-tool="exit"]',
-    title: '6. Авариен изход',
+    title: 'Авариен изход',
     text: 'Изходът е крайна точка на маршрута. Постави го върху коридор или външна стена. Размерът му също се променя с кръгчето или плъзгача.'
   },
   {
     target: '.tool[data-tool="stairs"]',
-    title: '7. Стълбище',
+    title: 'Стълбище',
     text: 'Стълбището свързва етажите. Постави го на еднаква позиция на всеки етаж, за да се получи обща шахта. Размерът влияе на капацитета.'
   },
   {
     target: '#peopleCount',
-    title: '8. Хора',
+    title: 'Хора',
     text: 'Задай брой хора и учители, после използвай инструмента „Група хора“ или въведи хората директно в помещение. Тези стойности участват в симулацията.'
   },
   {
     target: '.tool[data-tool="hazard"]',
-    title: '9. Опасна зона',
+    title: 'Опасна зона',
     text: 'С инструмента „Опасна зона“ маркираш пожар, вода или блокирана зона. След избиране задай радиус, скорост на разпространение и максимален обхват.'
   },
   {
     target: '#showSpread',
-    title: '10. Разпространение',
+    title: 'Разпространение',
     text: 'Тази отметка показва на картата как опасността расте във времето — плътният кръг е текущият обхват, а пунктираните са прогноза за +30, +60 и +120 секунди. Панелът отдолу показва кои помещения и изходи ще бъдат достигнати.'
   },
   {
     target: '.scenario[data-scenario="fire"]',
-    title: '11. Сценарии',
+    title: 'Сценарии',
     text: 'Избери пожар, земетресение, наводнение или защитно укриване. Сценарият определя реакцията, капацитетите и дали опасните зони блокират маршрути.'
   },
   {
     target: '#run',
-    title: '12. Стартирай симулацията',
+    title: 'Стартирай симулацията',
     text: 'Симулацията движи всеки човек по маршрут, отчита капацитета на врати, изходи и стълбища и създава опашки. „Пауза“ и „Стоп“ контролират изпълнението.'
   },
   {
     target: '.bottomstats',
-    title: '13. Статистика',
+    title: 'Статистика',
     text: 'Тук виждаш общо хора, хора в безопасност, чакащи в опашка, симулационно време и процент завършена евакуация.'
   },
   {
     target: '#objectEditor',
-    title: '14. Избран обект',
+    title: 'Избран обект',
     text: 'Избери обект от плана, за да редактираш името, координатите, хората, ширината, радиуса и разпространението. Промените се записват автоматично.'
   },
   {
     target: '#undo',
-    title: '15. Отмяна и повторение',
+    title: 'Отмяна и повторение',
     text: 'Стрелките или Ctrl+Z / Ctrl+Y връщат и повтарят действия. Проектът се записва автоматично, а вдясно виждаш часа на последния авто-запис.'
   },
   {
     target: '#saveProject',
-    title: '16. Запази проекта',
+    title: 'Запази проекта',
     text: '„Запази“ създава .evac.json файл, който може да отвориш по-късно. Прикачените файлове се пазят като пътища, не се вграждат в JSON.'
   },
   {
     target: '#exportPdf',
-    title: '17. Експорт',
+    title: 'Експорт',
     text: 'Експортирай SVG или PNG на текущия етаж, или PDF отчет с всички етажи, статистика, маршрути и проверки.'
   },
   {
     target: '#attachFiles',
-    title: '18. Материали',
+    title: 'Материали',
     text: 'Прикачи PDF, снимка, SVG, DOCX, XLSX или TXT. Изображение или PDF може да стане подложка на етажа и да се мащабира, завърта и избледнява.'
   },
   {
     target: '#openSettings',
-    title: '19. Настройки',
+    title: 'Настройки',
     text: 'Оттук променяш мащаба, височината на етаж, скоростта на ходене, специфичния поток, скоростта на разпространение и авто-записа.'
   },
   {
     target: '.legend',
-    title: '20. Легенда',
+    title: 'Легенда',
     text: 'Легендата обяснява цветовете и символите. С нея клиентът бързо разбира кой обект какво означава.'
   },
   {
@@ -3010,11 +3157,12 @@ function showTourStep() {
   }
   tourElement = el;
   $('tourStepLabel').textContent = (tourIndex + 1) + ' / ' + TOUR_STEPS.length;
-  $('tourTitle').textContent = step.title;
+  $('tourTitle').textContent = (tourIndex + 1) + '. ' + step.title;
   $('tourText').textContent = step.text;
   $('tourPrev').disabled = tourIndex === 0;
   $('tourNext').textContent = tourIndex === TOUR_STEPS.length - 1 ? 'Готово' : 'Напред →';
   el.scrollIntoView({ block: 'center', inline: 'nearest' });
+  positionTour();
   requestAnimationFrame(() => {
     positionTour();
     setTimeout(positionTour, 80);
@@ -3141,6 +3289,19 @@ function bindEvents() {
 
   $('newProject').addEventListener('click', newProject);
   $('loadSample').addEventListener('click', loadSample);
+  $('openLibrary').addEventListener('click', openLibraryDialog);
+  $('libRandom').addEventListener('click', () => {
+    if (!window.BuildingLibrary) return;
+    $('libSeed').value = BuildingLibrary.randomSeed();
+    updateLibrarySummary();
+  });
+  $('libGenerate').addEventListener('click', generateLibraryBuilding);
+  ['libSeed', 'libFloors', 'libRooms', 'libPeople', 'libHazard'].forEach(id => {
+    const el = $(id);
+    if (!el) return;
+    el.addEventListener('input', updateLibrarySummary);
+    el.addEventListener('change', updateLibrarySummary);
+  });
   $('openSettings').addEventListener('click', openSettings);
   $('openHelp').addEventListener('click', () => {
     const dialog = $('helpDialog');
@@ -3332,7 +3493,7 @@ function init() {
   updateAutosaveInfo();
   syncSimButtons();
   setTool('select');
-  addLog('Evacuation Simulator v0.4.0 — учебен прототип.');
+  addLog('Evacuation Simulator v0.5.0 — учебен прототип.');
   if (restored) {
     addLog('Възстановен е авто-запис от ' + (lastAutosaveAt || 'предишен сеанс') + '.');
     showToast('Възстановен е авто-запис.');

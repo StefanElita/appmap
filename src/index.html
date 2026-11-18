@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Evacuation Simulator v0.4</title>
+<title>Evacuation Simulator v0.5</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -18,9 +18,10 @@
   <div class="headright">
     <span class="pill" id="dirtyPill">● Нов проект</span>
     <span class="pill" id="autosavePill">Авто-запис: изкл.</span>
-    <span class="pill">v0.4.0</span>
+    <span class="pill">v0.5.0</span>
     <button id="newProject" class="small">Нов</button>
     <button id="loadSample" class="small">Примерен план</button>
+    <button id="openLibrary" class="small">▦ Библиотека</button>
     <button id="tourBtn" class="small">✦ Обучение</button>
     <button id="openSettings" class="small">⚙ Настройки</button>
     <button id="openHelp" class="small">? Помощ</button>
@@ -302,8 +303,43 @@
   </div>
 </dialog>
 
+<dialog id="libraryDialog">
+  <div class="dialog-head"><h2>Библиотека с тестови сгради</h2><button class="icon" data-close="libraryDialog">✕</button></div>
+  <div class="dialog-body">
+    <p class="note">Процедурно генерирани сгради за тестове и демонстрации. Всяка стая има врата към коридора, а стените спират разпространението на пожар/вода.</p>
+    <div class="library-grid" id="libraryPresets"></div>
+    <div class="help-grid" style="margin-top:12px">
+      <div class="help-card">
+        <label for="libSeed">Seed (номер)</label>
+        <input id="libSeed" type="number" min="1" max="999999" step="1" value="1">
+        <label for="libFloors">Етажи</label>
+        <input id="libFloors" type="number" min="1" max="6" step="1" value="2">
+        <label for="libRooms">Стаи на страна</label>
+        <input id="libRooms" type="number" min="1" max="5" step="1" value="3">
+      </div>
+      <div class="help-card">
+        <label for="libPeople">Хора в стая</label>
+        <input id="libPeople" type="number" min="0" max="200" step="1" value="24">
+        <label for="libHazard">Опасност</label>
+        <select id="libHazard">
+          <option value="fire">Пожар</option>
+          <option value="flood">Наводнение</option>
+          <option value="none">Без опасност</option>
+        </select>
+        <p class="note" id="libSummary">—</p>
+      </div>
+    </div>
+  </div>
+  <div class="dialog-foot">
+    <button id="libRandom" class="small">🎲 Нов seed</button>
+    <span style="flex:1"></span>
+    <button data-close="libraryDialog">Отказ</button>
+    <button id="libGenerate" class="primary">Генерирай и зареди</button>
+  </div>
+</dialog>
+
 <dialog id="helpDialog">
-  <div class="dialog-head"><h2>Помощ / v0.4.0</h2><button class="icon" data-close="helpDialog">✕</button></div>
+  <div class="dialog-head"><h2>Помощ / v0.5.0</h2><button class="icon" data-close="helpDialog">✕</button></div>
   <div class="dialog-body">
     <div class="help-grid">
       <div class="help-card">
@@ -332,6 +368,11 @@
       <div class="help-card">
         <h4>Размери и разпространение</h4>
         <p>Вратите, изходите, стълбищата и опасните зони имат регулируем размер. Избери обект и плъзни кръгчето вдясно от него или използвай плъзгача в „Избран обект“. При сценарии „Пожар“ и „Наводнение“ опасната зона расте с времето; пунктираните кръгове са прогноза за +30, +60 и +120 s, а панелът „Разпространение“ показва кои помещения и изходи ще бъдат достигнати.</p>
+        <p class="note">Опасността минава само през врати, изходи и стълбища — стените я спират. Затова всяка стая трябва да има врата към коридора.</p>
+      </div>
+      <div class="help-card">
+        <h4>Библиотека с тестови сгради</h4>
+        <p>Бутонът „▦ Библиотека“ генерира училище, офис, хотел, болница или търговски център. Избираш seed, етажи, стаи на страна, хора в стая и вид опасност. Всяка стая получава врата към коридора, изходите са в двата края, а стълбището е на еднаква позиция на всички етажи.</p>
       </div>
       <div class="help-card">
         <h4>Ограничения</h4>
@@ -367,6 +408,7 @@
 
 <script src="simulation-engine.js"></script>
 <script src="simulation-runner.js"></script>
+<script src="building-library.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

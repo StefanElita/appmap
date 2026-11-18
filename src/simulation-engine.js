@@ -1,5 +1,5 @@
 /*
- * Evacuation Simulator v0.4.0 — simulation engine (graph + routing)
+ * Evacuation Simulator v0.5.0 — simulation engine (graph + routing)
  * Учебен модел. Не е валидиран физически/инженерен инструмент.
  */
 (function (root, factory) {
@@ -9,7 +9,7 @@
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
 
-  const VERSION = '0.4.0';
+  const VERSION = '0.5.0';
   const DEFAULTS = {
     pxPerMeter: 25,
     floorHeight: 3.2,
@@ -201,6 +201,9 @@
       for (const edgeId of adj) {
         const edge = model.edges[edgeId];
         if (!edge) continue;
+        /* Огънят/водата минават само през врати, изходи и стълбища.
+           Директните контакти между помещения (през стена) се пропускат. */
+        if (edge.blocksSpread || edge.kind === 'opening') continue;
         const v = edge.a === u ? edge.b : edge.a;
         if (visited.has(v)) continue;
         const nd = d + edge.distance;
@@ -515,6 +518,7 @@
             speedFactor: 1,
             gateId: 'opening:' + pairKey(a, b),
             kind: 'opening',
+            blocksSpread: true,
             floor: fi
           });
           doorPairs.add(pairKey(a, b));
@@ -552,6 +556,7 @@
 
     /* ---- 3b. Разпространение на опасности (пожар / вода) ---- */
     if (scenario === 'fire' || scenario === 'flood') {
+      const allSpaces = model.floors.reduce((sum, fl) => sum + ((fl.spaces && fl.spaces.length) || 0), 0);
       model.floors.forEach(fl => {
         (fl.hazards || []).forEach(h => {
           if (!h.spread) return;
@@ -592,9 +597,15 @@
             maxRadius: h.maxRadius,
             originNodeId: origin.id,
             arrivals: targets,
-            exits: targets.filter(a => a.kind === 'exit')
+            exits: targets.filter(a => a.kind === 'exit'),
+            reachableSpaces: targets.filter(a => a.kind === 'space').length,
+            totalSpaces: allSpaces,
+            blockedSpaces: Math.max(0, allSpaces - targets.filter(a => a.kind === 'space').length)
           };
           model.hazardSpread.push(info);
+          if (info.reachableSpaces <= 1 && fl.spaces.length > 1) {
+            warn('Разпространението от „' + info.label + '“ е ограничено от стени: няма врата/изход към други помещения.');
+          }
           const firstExit = info.exits.slice().sort((a, b) => a.time - b.time)[0];
           if (firstExit) {
             const word = scenario === 'flood' ? 'Водата' : 'Пожарът';

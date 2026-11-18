@@ -265,6 +265,24 @@ dialog::backdrop { background: #02060daa; backdrop-filter: blur(2px); }
   background: rgba(255, 101, 122, .1); color: #ffd0d7; font-size: 11px; font-weight: 700;
 }
 
+.library-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px; margin-top: 10px;
+}
+.library-card {
+  display: flex; flex-direction: column; gap: 4px; text-align: left;
+  padding: 10px; border: 1px solid var(--line); border-radius: 10px;
+  background: rgba(20, 32, 50, .6); color: var(--txt); cursor: pointer;
+}
+.library-card:hover { border-color: var(--cyan); }
+.library-card.selected {
+  border-color: var(--cyan); background: rgba(66, 211, 197, .08);
+  box-shadow: 0 0 0 1px var(--cyan) inset;
+}
+.library-card strong { font-size: 12px; }
+.library-card span { font-size: 11px; line-height: 1.45; color: var(--muted); }
+.library-card em { font-style: normal; font-size: 10px; font-weight: 700; color: var(--cyan); }
+
 .tour-overlay { position: fixed; inset: 0; z-index: 2000; pointer-events: none; }
 .tour-spot {
   position: fixed; border: 2px solid var(--cyan); border-radius: 10px;
