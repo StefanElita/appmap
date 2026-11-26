@@ -1,0 +1,72 @@
+{
+  "format": "evacuation-simulator",
+  "version": "0.9.4",
+  "projectName": "Демонстрация — обходен изход при пожар",
+  "settings": {
+    "scenario": "fire",
+    "pxPerMeter": 25,
+    "preMovement": 0,
+    "spreadSpeed": 1,
+    "fireSpreadMultiplier": 1,
+    "fireExitSafetyMeters": 2,
+    "dynamicRouting": true,
+    "fireExposureLimitSeconds": 200,
+    "populationProfiles": {
+      "children": 0,
+      "older": 0,
+      "limited": 0
+    }
+  },
+  "floors": [
+    {
+      "id": "floor",
+      "name": "Учебен етаж — два изхода",
+      "items": [
+        {
+          "id": "corr",
+          "type": "corridor",
+          "name": "Коридор",
+          "x": 100,
+          "y": 100,
+          "w": 400,
+          "h": 100
+        },
+        {
+          "id": "people",
+          "type": "people",
+          "name": "Група",
+          "x": 240,
+          "y": 150,
+          "count": 6
+        },
+        {
+          "id": "left",
+          "type": "exit",
+          "name": "Ляв изход",
+          "x": 100,
+          "y": 150,
+          "width": 1.2
+        },
+        {
+          "id": "right",
+          "type": "exit",
+          "name": "Десен изход",
+          "x": 540,
+          "y": 150,
+          "width": 1.2
+        },
+        {
+          "id": "flame",
+          "type": "hazard",
+          "name": "Пожар близо до левия изход",
+          "x": 175,
+          "y": 175,
+          "radius": 6,
+          "spread": true,
+          "maxRadius": 4,
+          "spreadSpeed": 1
+        }
+      ]
+    }
+  ]
+}

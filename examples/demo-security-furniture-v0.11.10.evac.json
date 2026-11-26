@@ -1,0 +1,215 @@
+{
+  "format": "evacuation-simulator",
+  "version": "0.11.10",
+  "projectName": "Security Incident — до 4 налични мебели в компактна група (демонстрация)",
+  "settings": {
+    "scenario": "lockdown",
+    "pxPerMeter": 25,
+    "floorHeight": 3.2,
+    "preMovement": 0,
+    "populationProfiles": {
+      "children": 0,
+      "older": 0,
+      "limited": 0
+    },
+    "securityEnhancedEnabled": true,
+    "securityRoamEnabled": true,
+    "securityRoomVisualsEnabled": true,
+    "securityWarningAtSeconds": 0,
+    "securityEmergencyAtSeconds": 1,
+    "securityEvacuationPercent": 0,
+    "securityRoamPeriodSeconds": 105,
+    "threatHelpCallEnabled": true,
+    "threatHelpCallAtSeconds": 24,
+    "securityHelpConfirmSeconds": 33,
+    "securityHelpArrivalSeconds": 130
+  },
+  "floors": [
+    {
+      "id": "floor-1",
+      "name": "Етаж 1",
+      "items": [
+        {
+          "id": "room-101",
+          "type": "room",
+          "name": "Учебна зала 101",
+          "x": 80,
+          "y": 90,
+          "w": 240,
+          "h": 165,
+          "people": 16
+        },
+        {
+          "id": "room-102",
+          "type": "room",
+          "name": "Учебна зала 102",
+          "x": 370,
+          "y": 90,
+          "w": 240,
+          "h": 165,
+          "people": 14
+        },
+        {
+          "id": "hall",
+          "type": "corridor",
+          "name": "Общ коридор",
+          "x": 80,
+          "y": 255,
+          "w": 670,
+          "h": 85
+        },
+        {
+          "id": "door-101",
+          "type": "door",
+          "name": "Врата 101",
+          "x": 200,
+          "y": 255,
+          "width": 1.3
+        },
+        {
+          "id": "door-102",
+          "type": "door",
+          "name": "Врата 102",
+          "x": 500,
+          "y": 255,
+          "width": 1.3
+        },
+        {
+          "id": "exit-1",
+          "type": "exit",
+          "name": "Изход А",
+          "x": 80,
+          "y": 300,
+          "width": 1.7
+        },
+        {
+          "id": "exit-2",
+          "type": "exit",
+          "name": "Изход Б",
+          "x": 750,
+          "y": 300,
+          "width": 1.7
+        },
+        {
+          "id": "desk-a",
+          "type": "furniture",
+          "name": "Маса 101",
+          "x": 140,
+          "y": 150,
+          "w": 60,
+          "h": 35,
+          "furnitureType": "table"
+        },
+        {
+          "id": "desk-b",
+          "type": "furniture",
+          "name": "Чинове 102",
+          "x": 430,
+          "y": 158,
+          "w": 50,
+          "h": 28,
+          "furnitureType": "desk"
+        },
+        {
+          "id": "threat-a",
+          "type": "threat",
+          "name": "Предупредителен обозначител A",
+          "x": 690,
+          "y": 290,
+          "entryAtSeconds": 0
+        },
+        {
+          "id": "threat-b",
+          "type": "threat",
+          "name": "Предупредителен обозначител Б",
+          "x": 740,
+          "y": 295,
+          "entryAtSeconds": 55
+        },
+        {
+          "id": "example-corridor-obstacle-v0118",
+          "type": "wall",
+          "x": 635,
+          "y": 254,
+          "x2": 635,
+          "y2": 341,
+          "thickness": 0.18,
+          "name": "Преграда за демонстрация на спиране"
+        },
+        {
+          "id": "example-third-desk-v0118",
+          "type": "furniture",
+          "furnitureType": "desk",
+          "x": 225,
+          "y": 175,
+          "w": 48,
+          "h": 28,
+          "name": "Допълнителен чин за визуализация"
+        },
+        {
+          "id": "room-102-table-b",
+          "type": "furniture",
+          "furnitureType": "table",
+          "name": "Маса 102 · демонстрация",
+          "x": 535,
+          "y": 151,
+          "w": 43,
+          "h": 29
+        },
+        {
+          "id": "room-101-desk-3",
+          "type": "furniture",
+          "furnitureType": "desk",
+          "name": "Чин 3",
+          "x": 105,
+          "y": 116,
+          "w": 42,
+          "h": 26
+        },
+        {
+          "id": "room-101-desk-4",
+          "type": "furniture",
+          "furnitureType": "desk",
+          "name": "Чин 4",
+          "x": 236,
+          "y": 112,
+          "w": 42,
+          "h": 26
+        },
+        {
+          "id": "room-101-desk-5",
+          "type": "furniture",
+          "furnitureType": "desk",
+          "name": "Чин 5",
+          "x": 105,
+          "y": 205,
+          "w": 42,
+          "h": 26
+        },
+        {
+          "id": "room-101-desk-6",
+          "type": "furniture",
+          "furnitureType": "desk",
+          "name": "Чин 6",
+          "x": 250,
+          "y": 204,
+          "w": 42,
+          "h": 26
+        },
+        {
+          "id": "room-102-desk-3",
+          "type": "furniture",
+          "furnitureType": "desk",
+          "name": "Чин 3 — стая 102",
+          "x": 408,
+          "y": 209,
+          "w": 42,
+          "h": 26
+        }
+      ],
+      "backdrop": null
+    }
+  ],
+  "attachments": [],
+  "baseline": null
+}

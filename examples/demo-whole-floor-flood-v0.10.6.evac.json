@@ -1,0 +1,345 @@
+{
+  "format": "evacuation-simulator",
+  "version": "0.10.6",
+  "name": "Демонстрация: външно наводнение от всички страни",
+  "settings": {
+    "scenario": "flood",
+    "pxPerMeter": 25,
+    "floorHeight": 3,
+    "preMovement": 25,
+    "floodGroundRiseEnabled": true,
+    "floodRiseMetersPerSecond": 0.18,
+    "floodStartSeconds": 0,
+    "floodMaxHeightMeters": 6.8,
+    "showSpread": true,
+    "dynamicRouting": true,
+    "populationProfiles": {
+      "children": 0,
+      "older": 0,
+      "limited": 0
+    }
+  },
+  "floors": [
+    {
+      "name": "Етаж 1",
+      "items": [
+        {
+          "id": "room-L-0",
+          "type": "room",
+          "name": "Лява зала, етаж 1",
+          "x": 56,
+          "y": 90,
+          "w": 300,
+          "h": 310,
+          "people": 8,
+          "materialId": "standard"
+        },
+        {
+          "id": "room-R-0",
+          "type": "room",
+          "name": "Дясна зала, етаж 1",
+          "x": 410,
+          "y": 90,
+          "w": 300,
+          "h": 310,
+          "people": 7,
+          "materialId": "standard"
+        },
+        {
+          "id": "win-left-0",
+          "type": "window",
+          "name": "Външен прозорец запад",
+          "x": 56,
+          "y": 210,
+          "open": true
+        },
+        {
+          "id": "win-right-0",
+          "type": "window",
+          "name": "Външен прозорец изток",
+          "x": 710,
+          "y": 220,
+          "open": true
+        },
+        {
+          "id": "win-north-0",
+          "type": "window",
+          "name": "Външен прозорец север",
+          "x": 255,
+          "y": 90,
+          "open": true
+        },
+        {
+          "id": "win-south-0",
+          "type": "window",
+          "name": "Външен прозорец юг",
+          "x": 525,
+          "y": 400,
+          "open": true
+        },
+        {
+          "id": "inner-door-0",
+          "type": "door",
+          "name": "Вътрешна врата (не е външен вход)",
+          "x": 383,
+          "y": 255,
+          "width": 1.3
+        },
+        {
+          "id": "stair-left-0",
+          "type": "stairs",
+          "name": "Стълбище",
+          "x": 300,
+          "y": 340,
+          "width": 1.4,
+          "shaft": "STAIR-A"
+        },
+        {
+          "id": "ground-exit-left",
+          "type": "exit",
+          "name": "Изход запад",
+          "x": 56,
+          "y": 330,
+          "width": 1.5
+        },
+        {
+          "id": "ground-entry-east",
+          "type": "door",
+          "name": "Външна входна врата изток",
+          "x": 710,
+          "y": 335,
+          "width": 1.3
+        }
+      ]
+    },
+    {
+      "name": "Етаж 2",
+      "items": [
+        {
+          "id": "room-L-1",
+          "type": "room",
+          "name": "Лява зала, етаж 2",
+          "x": 56,
+          "y": 90,
+          "w": 300,
+          "h": 310,
+          "people": 8,
+          "materialId": "standard"
+        },
+        {
+          "id": "room-R-1",
+          "type": "room",
+          "name": "Дясна зала, етаж 2",
+          "x": 410,
+          "y": 90,
+          "w": 300,
+          "h": 310,
+          "people": 7,
+          "materialId": "standard"
+        },
+        {
+          "id": "win-left-1",
+          "type": "window",
+          "name": "Външен прозорец запад",
+          "x": 56,
+          "y": 210,
+          "open": true
+        },
+        {
+          "id": "win-right-1",
+          "type": "window",
+          "name": "Външен прозорец изток",
+          "x": 710,
+          "y": 220,
+          "open": true
+        },
+        {
+          "id": "win-north-1",
+          "type": "window",
+          "name": "Външен прозорец север",
+          "x": 255,
+          "y": 90,
+          "open": true
+        },
+        {
+          "id": "win-south-1",
+          "type": "window",
+          "name": "Външен прозорец юг",
+          "x": 525,
+          "y": 400,
+          "open": true
+        },
+        {
+          "id": "inner-door-1",
+          "type": "door",
+          "name": "Вътрешна врата (не е външен вход)",
+          "x": 383,
+          "y": 255,
+          "width": 1.3
+        },
+        {
+          "id": "stair-left-1",
+          "type": "stairs",
+          "name": "Стълбище",
+          "x": 300,
+          "y": 340,
+          "width": 1.4,
+          "shaft": "STAIR-A"
+        }
+      ]
+    },
+    {
+      "name": "Етаж 3",
+      "items": [
+        {
+          "id": "room-L-2",
+          "type": "room",
+          "name": "Лява зала, етаж 3",
+          "x": 56,
+          "y": 90,
+          "w": 300,
+          "h": 310,
+          "people": 8,
+          "materialId": "standard"
+        },
+        {
+          "id": "room-R-2",
+          "type": "room",
+          "name": "Дясна зала, етаж 3",
+          "x": 410,
+          "y": 90,
+          "w": 300,
+          "h": 310,
+          "people": 7,
+          "materialId": "standard"
+        },
+        {
+          "id": "win-left-2",
+          "type": "window",
+          "name": "Външен прозорец запад",
+          "x": 56,
+          "y": 210,
+          "open": true
+        },
+        {
+          "id": "win-right-2",
+          "type": "window",
+          "name": "Външен прозорец изток",
+          "x": 710,
+          "y": 220,
+          "open": true
+        },
+        {
+          "id": "win-north-2",
+          "type": "window",
+          "name": "Външен прозорец север",
+          "x": 255,
+          "y": 90,
+          "open": true
+        },
+        {
+          "id": "win-south-2",
+          "type": "window",
+          "name": "Външен прозорец юг",
+          "x": 525,
+          "y": 400,
+          "open": true
+        },
+        {
+          "id": "inner-door-2",
+          "type": "door",
+          "name": "Вътрешна врата (не е външен вход)",
+          "x": 383,
+          "y": 255,
+          "width": 1.3
+        },
+        {
+          "id": "stair-left-2",
+          "type": "stairs",
+          "name": "Стълбище",
+          "x": 300,
+          "y": 340,
+          "width": 1.4,
+          "shaft": "STAIR-A"
+        }
+      ]
+    },
+    {
+      "name": "Етаж 4",
+      "items": [
+        {
+          "id": "room-L-3",
+          "type": "room",
+          "name": "Лява зала, етаж 4",
+          "x": 56,
+          "y": 90,
+          "w": 300,
+          "h": 310,
+          "people": 2,
+          "materialId": "standard"
+        },
+        {
+          "id": "room-R-3",
+          "type": "room",
+          "name": "Дясна зала, етаж 4",
+          "x": 410,
+          "y": 90,
+          "w": 300,
+          "h": 310,
+          "people": 2,
+          "materialId": "standard"
+        },
+        {
+          "id": "win-left-3",
+          "type": "window",
+          "name": "Външен прозорец запад",
+          "x": 56,
+          "y": 210,
+          "open": true
+        },
+        {
+          "id": "win-right-3",
+          "type": "window",
+          "name": "Външен прозорец изток",
+          "x": 710,
+          "y": 220,
+          "open": true
+        },
+        {
+          "id": "win-north-3",
+          "type": "window",
+          "name": "Външен прозорец север",
+          "x": 255,
+          "y": 90,
+          "open": true
+        },
+        {
+          "id": "win-south-3",
+          "type": "window",
+          "name": "Външен прозорец юг",
+          "x": 525,
+          "y": 400,
+          "open": true
+        },
+        {
+          "id": "inner-door-3",
+          "type": "door",
+          "name": "Вътрешна врата (не е външен вход)",
+          "x": 383,
+          "y": 255,
+          "width": 1.3
+        },
+        {
+          "id": "stair-left-3",
+          "type": "stairs",
+          "name": "Стълбище",
+          "x": 300,
+          "y": 340,
+          "width": 1.4,
+          "shaft": "STAIR-A"
+        }
+      ]
+    }
+  ],
+  "projectName": "Демо · едновременно заливане на цели етажи"
+}

@@ -1,0 +1,58 @@
+{
+  "format": "evacuation-simulator",
+  "version": "0.10.1",
+  "projectName": "Земетресение — укриване и евакуация",
+  "settings": {
+    "scenario": "quake",
+    "pxPerMeter": 25,
+    "preMovement": 12,
+    "populationProfiles": {
+      "children": 0,
+      "older": 0,
+      "limited": 0
+    }
+  },
+  "floors": [
+    {
+      "id": "floor1",
+      "name": "Примерен учебен етаж",
+      "items": [
+        {
+          "id": "room1",
+          "type": "room",
+          "name": "Учебна стая",
+          "x": 40,
+          "y": 40,
+          "w": 370,
+          "h": 250
+        },
+        {
+          "id": "people1",
+          "type": "people",
+          "name": "Група",
+          "x": 80,
+          "y": 130,
+          "count": 5
+        },
+        {
+          "id": "desk1",
+          "type": "furniture",
+          "name": "Чин",
+          "x": 115,
+          "y": 108,
+          "w": 48,
+          "h": 35,
+          "furnitureType": "desk"
+        },
+        {
+          "id": "exit1",
+          "type": "exit",
+          "name": "Изход",
+          "x": 410,
+          "y": 170,
+          "width": 1.2
+        }
+      ]
+    }
+  ]
+}

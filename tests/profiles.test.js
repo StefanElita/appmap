@@ -1,0 +1,18 @@
+const assert = require('node:assert/strict');
+const engine = require('../src/simulation-engine.js');
+const sim = require('../src/simulation-runner.js');
+const library = require('../src/building-library.js');
+const project = library.generate({preset:'school', floors:1, roomsPerSide:2, people:10, seed:123});
+project.settings.populationProfiles = {children:20, older:20, limited:10};
+const model = engine.buildModel(project, {scenario:'fire'});
+assert.ok(model.groups.length, 'must generate people groups');
+const runner = sim.createSimulation(model, {timeout:300});
+assert.ok(runner.agents.length, 'must spawn agents');
+assert.ok(runner.agents.some(a => a.profile === 'children'), 'children should be represented');
+assert.ok(runner.agents.some(a => a.profile === 'older'), 'older people should be represented');
+assert.ok(runner.agents.some(a => a.profile === 'limited'), 'limited mobility should be represented');
+assert.ok(runner.agents.some(a => a.profile === 'adult'), 'adults should be represented');
+assert.ok(runner.agents.every(a => a.speedMultiplier > 0));
+const state = runner.advance(1);
+assert.ok(state && Number.isFinite(state.time));
+console.log('PASS: profile mix, agent speeds and simulation advance');

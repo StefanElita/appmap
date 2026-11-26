@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Evacuation Simulator v0.5</title>
+<title>Evacuation Simulator v0.11.10</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -18,17 +18,36 @@
   <div class="headright">
     <span class="pill" id="dirtyPill">● Нов проект</span>
     <span class="pill" id="autosavePill">Авто-запис: изкл.</span>
-    <span class="pill">v0.5.0</span>
+    <span class="pill">v0.11.10</span>
     <button id="newProject" class="small">Нов</button>
     <button id="loadSample" class="small">Примерен план</button>
     <button id="openLibrary" class="small">▦ Библиотека</button>
+    <button id="validatePlan" class="small">✓ Валидатор</button>
     <button id="tourBtn" class="small">✦ Обучение</button>
     <button id="openSettings" class="small">⚙ Настройки</button>
     <button id="openHelp" class="small">? Помощ</button>
   </div>
 </header>
 
-<main>
+<nav class="app-nav" aria-label="Основна навигация">
+  <div class="nav-brand"><div class="nav-mark">⌂</div><div><strong>EVAC SIM</strong><small>STUDIO 0.11.10</small></div></div>
+  <div class="nav-caption">РАБОТНО ПРОСТРАНСТВО</div>
+  <button class="nav-link active" data-view="project"><span>▤</span> Проект</button>
+  <button class="nav-link" data-view="scenarios"><span>◉</span> Сценарии</button>
+  <button class="nav-link" data-view="advanced"><span>▧</span> Advanced Build</button>
+  <button class="nav-link" data-view="reports"><span>▥</span> Резултати и отчети</button>
+  <div class="nav-caption">ИНСТРУМЕНТИ</div>
+  <button class="nav-link" data-action="library"><span>▦</span> Библиотека сгради</button>
+  <button class="nav-link" data-action="smart-import"><span>✦</span> Smart Import снимка</button>
+  <button class="nav-link" data-action="3d"><span>◈</span> 3D анимация</button>
+  <button class="nav-link" data-action="validate"><span>✓</span> Проверка на плана</button>
+  <div class="nav-grow"></div>
+  <button class="nav-link" data-action="settings"><span>⚙</span> Настройки</button>
+  <button class="nav-link" data-action="help"><span>?</span> Помощ</button>
+  <p class="nav-caution">Учебен симулатор<br>Не е инженерна сертификация</p>
+</nav>
+
+<main id="appMain" data-page="project">
   <aside class="panel side">
     <div class="group">
       <h3>Сграда</h3>
@@ -54,8 +73,37 @@
       <button class="tool" data-tool="exit">⇧ Авариен изход <span class="kbd">E</span></button>
       <button class="tool" data-tool="stairs">▤ Стълбище <span class="kbd">S</span></button>
       <button class="tool" data-tool="people">● Група хора <span class="kbd">P</span></button>
+      <button class="tool" data-tool="furniture">▣ Мебел / оборудване <span class="kbd">F</span></button>
       <button class="tool" data-tool="hazard">⚠ Опасна зона <span class="kbd">H</span></button>
+      <button class="tool" data-tool="threat">◉ Символ на опасен човек (само сценарий „Заплаха“)</button>
+      <button class="tool" data-tool="vent">◌ Вентилатор / аспиратор</button>
+      <button class="tool" data-tool="window">▣ Прозорец за проветряване</button>
+      <button class="tool" data-tool="ventshaft">▥ Вентилационна шахта</button>
+      <button class="tool" data-tool="surface">▧ Повърхност <span class="kbd">M</span></button>
+      <button class="tool" data-tool="wall">━ Стена <span class="kbd">W</span></button>
+      <button class="tool" data-tool="opening">◫ Отвор в стена <span class="kbd">O</span></button>
+      <button class="tool" data-tool="elevator">▣ Асансьор <span class="kbd">L</span></button>
+      <button class="tool" data-tool="safezone">◎ Безопасна зона <span class="kbd">Z</span></button>
+      <button class="tool" data-tool="courtyard">▧ Общ двор <span class="kbd">G</span></button>
       <p class="note" id="toolHint">Избери обект, за да го преместиш. Плъзни за преместване; дръж <strong>Alt</strong> и плъзни за панорама.</p>
+    </div>
+
+    <div class="group" id="advancedBuildPanel">
+      <h3>▧ Advanced Build — повърхности</h3>
+      <p class="note">Избери материал и очертай участък върху план. Ако покрие поне 30% от помещение, зоната задава неговия материал. Можеш също да зададеш материал направо на избрано помещение.</p>
+      <label for="buildMaterial">Материал на нова зона</label>
+      <select id="buildMaterial"></select>
+      <div id="materialDetails" class="material-details"></div>
+      <details class="material-guide" open>
+        <summary>▤ Легенда и таблица с ефектите</summary>
+        <p class="note">×1.00 = без промяна. По-голямо число = по-бързо движение или по-бързо разпространение. За мокра настилка се прилага и коефициентът „Мокро“. Числата са условни, учебни.</p>
+        <div class="material-table-scroll"><table class="material-guide-table" id="materialGuideTable">
+          <thead><tr><th>Материал</th><th>Ходене</th><th>Пожар</th><th>Дим</th><th>Вода</th><th>Мокро</th></tr></thead>
+          <tbody id="materialGuideBody"></tbody>
+        </table></div>
+      </details>
+      <button id="startSurfaceTool" class="small primary" style="width:100%;margin-top:8px">▧ Очертай повърхност</button>
+      <p class="note">Ефекти: скорост на хората, разпространение на пожар / вода / дим. Коефициентите са примерни, а не физични константи.</p>
     </div>
 
     <div class="group">
@@ -70,7 +118,19 @@
       <p class="note">За помещение/коридор: плъзни правоъгълник или щракни два пъти. За врата, изход, стълбище, хора и опасност: едно щракване.</p>
     </div>
 
-    <div class="group">
+    <div class="group" id="furnishingPanel">
+      <h3>▣ Мебели и разположение</h3>
+      <p class="note">Избери помещение от 2D плана, посочи стил и генерирай примерни места. Мебелите влияят на маршрута: хората ги заобикалят. При земетресение могат временно да се укрият под подходящ чин или маса; при наводнение без достъпен маршрут — да изчакват върху повдигната мебел (учебно допускане, НЕ реална препоръка).</p>
+      <label for="furniturePreset">Тип подредба</label><select id="furniturePreset"><option value="classroom">Класна стая</option><option value="office">Офис</option><option value="meeting">Заседателна зала</option><option value="dwelling">Жилищна</option><option value="library">Библиотека</option><option value="hall">Зала</option></select>
+      <label class="inline"><input type="checkbox" id="furnitureAddPeople"> Добави хора на местата (по избор)</label>
+      <label for="furnitureSeats">Предложени места</label><input id="furnitureSeats" type="number" value="12" min="0" max="100" step="1">
+      <button id="furnishSelected" class="small primary" style="width:100%;margin-top:8px">Обзаведи избраната стая</button>
+      <label for="furnitureType">Единична мебел (инструмент F)</label><select id="furnitureType"></select>
+      <button id="placeSingleFurniture" class="small" style="width:100%;margin-top:7px">＋ Постави избраната мебел на плана</button>
+      <p class="note">Избери вид, натисни бутона и щракни на картата — по една мебел на всяко щракване. За преместване използвай „Избор“ (V). Автоматичното обзавеждане остава отделно.</p>
+    </div>
+
+    <div class="group" id="selectedObjectPanel">
       <h3>Избран обект</h3>
       <div id="objectEditor"><p class="note">Няма избран обект. Щракни върху обект от плана.</p></div>
       <div class="btnrow" style="margin-top:8px">
@@ -89,6 +149,7 @@
         <button id="exportSvg" class="small">SVG</button>
         <button id="exportPng" class="small">PNG</button>
         <button id="exportPdf" class="small">PDF отчет</button>
+        <button id="exportCsv" class="small">CSV данни</button>
       </div>
       <button id="clearFloor" class="small danger" style="width:100%;margin-top:6px">Изчисти текущия етаж</button>
       <p class="note" id="projectStatus" style="margin-top:6px">Проектът се запазва като .evac.json файл.</p>
@@ -99,6 +160,8 @@
       <div class="btnrow">
         <button id="attachFiles" class="small primary">＋ Прикачи файл</button>
         <button id="clearBackdrop" class="small">Без подложка</button>
+        <button id="importDxf" class="small">Импорт DXF</button>
+        <button id="openSmartImport" class="small primary" title="Създай редактируем план от снимка/сканиран чертеж">✦ Smart Import</button>
       </div>
       <div id="attachmentsList"><p class="note">PDF, PNG, JPG, SVG, DOCX, XLSX, TXT и др. Могат да се отварят; изображения и PDF — и като подложка.</p></div>
       <div id="backdropPanel" style="display:none;margin-top:8px;border-top:1px solid var(--line);padding-top:8px">
@@ -136,10 +199,14 @@
         <span class="sep"></span>
         <button id="zoomOut" class="icon" title="Намали">−</button>
         <button id="zoomFit" class="small" title="Покажи целия план">100%</button>
+        <button id="openIso" class="small primary" title="3D анимация на евакуацията с въртяща се камера и запис">◈ 3D анимация</button>
+        <button class="small" id="smartImportShortcut" title="Разпознай помещения от изображение">✦ От снимка</button>
         <button id="zoomIn" class="icon" title="Увеличи">＋</button>
       </div>
       <div class="right">
         <label class="inline" title="Показва изчислените маршрути"><input id="showRoutes" type="checkbox" checked> Маршрути</label>
+        <label class="inline" title="Слой дим при пожар"><input id="showSmoke" type="checkbox" checked> Дим</label>
+        <label class="inline" title="Плътност на хората по коридори и помещения"><input id="showHeatmap" type="checkbox"> Топлина</label>
         <select id="speedSelect" title="Скорост на възпроизвеждане">
           <option value="0.5">0.5×</option>
           <option value="1">1×</option>
@@ -154,6 +221,7 @@
     </div>
 
     <div class="canvaswrap" id="canvasWrap">
+      <button id="restartSimulation" class="restart-finished" type="button" hidden aria-label="Върни симулацията в началното състояние">↻ RESTART · Върни в началото</button>
       <div id="pdfBackdrop" class="pdf-backdrop"></div>
       <svg id="floor" viewBox="0 0 900 590" aria-label="Редактор на етажен план">
         <defs>
@@ -168,29 +236,169 @@
       </svg>
       <div class="canvasnote" id="canvasNote">РАБОТНА ЗОНА · ЩРАКНИ ЗА ДОБАВЯНЕ</div>
       <div class="coords" id="coords">x: — · y: —</div>
+      <div class="mini-toolbar" id="miniToolbar" aria-label="Бързи инструменти">
+        <button class="mini-tool active" data-tool="select" title="Избор / преместване (V)">↖</button>
+        <button class="mini-tool" data-tool="room" title="Помещение (R)">▧</button>
+        <button class="mini-tool" data-tool="corridor" title="Коридор (C)">↔</button>
+        <button class="mini-tool" data-tool="door" title="Врата (D)">▱</button>
+        <button class="mini-tool" data-tool="exit" title="Изход (E)">⇧</button>
+        <button class="mini-tool" data-tool="stairs" title="Стълбище (S)">▤</button>
+        <button class="mini-tool" data-tool="people" title="Хора (P)">●</button>
+        <button class="mini-tool" data-tool="hazard" title="Опасност (H)">⚠</button>
+        <button class="mini-tool" data-tool="vent" title="Вентилатор">◌</button>
+        <button class="mini-tool" data-tool="window" title="Прозорец">▣</button>
+        <button class="mini-tool" data-tool="surface" title="Advanced Build: повърхност (M)">▧</button>
+        <button class="mini-tool" data-tool="wall" title="Стена (W)">━</button>
+        <button class="mini-tool" data-tool="opening" title="Отвор (O)">◫</button>
+        <button class="mini-tool" data-tool="elevator" title="Асансьор (L)">▣</button>
+        <button class="mini-tool" data-tool="safezone" title="Безопасна зона (Z)">◎</button>
+        <span class="mini-sep"></span>
+        <button id="miniHeat" class="mini-tool" title="Топлинна карта">▦</button>
+        <button id="miniSmoke" class="mini-tool" title="Слой дим">☁</button>
+      </div>
     </div>
 
     <div class="bottomstats">
       <div class="stat"><div class="k">ОБЩО ХОРА</div><div class="n" id="sPeople">0</div></div>
-      <div class="stat"><div class="k">В БЕЗОПАСНОСТ</div><div class="n" id="sSafe">0</div></div>
+      <div class="stat"><div class="k">ЕВАКУИРАНИ</div><div class="n" id="sSafe">0</div></div>
+      <div class="stat"><div class="k">ИЗЧАКВАТ ПОМОЩ</div><div class="n" id="sSheltered">0</div></div>
       <div class="stat"><div class="k">В ОПАШКА</div><div class="n" id="sQueued">0</div></div>
+      <div class="stat"><div class="k">ЗАГИНАЛИ</div><div class="n" id="sFatal">0</div></div>
       <div class="stat"><div class="k">ВРЕМЕ</div><div class="n" id="sTime">0 s</div></div>
-      <div class="stat"><div class="k">ПРОГРЕС</div><div class="n" id="sProgress">0%</div></div>
+      <div class="stat"><div class="k">ОБРАБОТЕНИ</div><div class="n" id="sProgress">0%</div></div>
     </div>
   </section>
 
   <aside class="panel rightpanel">
     <div class="group">
       <h3>Сценарий</h3>
-      <div class="scenario selected" data-scenario="fire"><strong>🔥 Пожар</strong><span>Опасните зони блокират маршрути; хората реагират след зададено време.</span></div>
-      <div class="scenario" data-scenario="quake"><strong>〰 Земетресение</strong><span>Начално изчакване, след което евакуация; стълбищата са с намален капацитет.</span></div>
-      <div class="scenario" data-scenario="flood"><strong>🌊 Наводнение</strong><span>Зоните с вода блокират проходи; използват се достъпните изходи.</span></div>
-      <div class="scenario" data-scenario="lockdown"><strong>🔒 Заплаха / блокиране</strong><span>Защитно укриване без движение; не се моделират действия на нападател.</span></div>
+      <div class="scenario selected" data-scenario="fire"><strong>🔥 Пожар</strong><span>Можеш да добавиш няколко огнища на различни места и етажи.</span></div>
+      <div class="scenario" data-scenario="quake"><strong>〰 Земетресение</strong><span>Едновременно разклащане на цялата сграда; от магнитуд 9 с автоматично условно срутване.</span></div>
+      <div class="scenario" data-scenario="flood"><strong>🌊 Наводнение</strong><span>Водата залива всички помещения на един етаж едновременно и се покачва до избрана височина.</span></div>
+      <div class="scenario" data-scenario="lockdown"><strong>🔒 Заплаха / блокиране</strong><span>Няколко предупредителни символа, защитно изчакване и съобщение за помощ.</span></div>
       <label for="preMovement">Реакция преди движение (s)</label>
       <input id="preMovement" type="number" min="0" max="600" step="1" placeholder="автоматично">
       <p class="note" id="scenarioNote">Пожар: 30 s реакция по подразбиране.</p>
     </div>
 
+    <div class="group" id="disasterScenarioSettings">
+      <h3>Разширени параметри на сценария</h3>
+      <p class="scenario-parameters-intro">Промени стойностите директно. Натисни <strong>ⓘ</strong> за пояснения.</p>
+      <section id="fireScenarioSettings" class="scenario-settings-card">
+        <div class="scenario-settings-heading">
+          <h4>🔥 Огнища и скорост</h4>
+          <button type="button" class="scenario-info-toggle" aria-expanded="false" aria-controls="fireScenarioHelp" aria-label="Информация за огнищата" title="Покажи информация">i</button>
+        </div>
+        <button id="addFireIgnition" class="small scenario-primary-action">＋ Добави огнище</button>
+        <p class="scenario-control-status" id="fireIgnitionCount">Огнища в плана: 0</p>
+        <label for="exFireSpeedMultiplier" class="fire-speed-label">Скорост на разпространение на огъня (%)</label>
+        <div class="fire-speed-controls">
+          <input id="exFireSpeedSlider" type="range" min="20" max="150" step="1" value="80" aria-label="Плъзгач за скорост на огъня" aria-describedby="fireSpeedEffective">
+          <input id="exFireSpeedMultiplier" type="number" min="20" max="150" step="1" value="80" aria-describedby="fireSpeedEffective">
+          <span>%</span>
+        </div>
+        <p class="scenario-control-status" id="fireSpeedEffective" aria-live="polite">Ориентировъчно 0,32 м/сек. за стандартно огнище</p>
+        <div class="scenario-help-panel" id="fireScenarioHelp" hidden>
+          <strong>Как работи?</strong> Избери етаж и щракни в желаното помещение, за да поставиш ново огнище. Можеш да добавиш няколко огнища на различни етажи и да зададеш началния им момент чрез Scenario Creator. Настройката за скорост важи за всички огнища, включително тези с индивидуално зададена скорост: 100% е базовата скорост, под 100% е по-бавно, над 100% е по-бързо. Изчислението е учебно и не е физична прогноза.
+        </div>
+      </section>
+      <section id="floodScenarioSettings" class="scenario-settings-card" hidden>
+        <div class="scenario-settings-heading">
+          <h4>🌊 Покачване на водата</h4>
+          <button type="button" class="scenario-info-toggle" aria-expanded="false" aria-controls="floodScenarioHelp" aria-label="Информация за наводнението" title="Покажи информация">i</button>
+        </div>
+        <p class="scenario-control-status">Водата залива целия етаж едновременно, започвайки от етаж 1. Без кръгово разпространение.</p>
+        <div class="scenario-param-grid">
+          <div class="scenario-param-field"><label for="exFloodRise">Скорост (м/сек.)</label><input id="exFloodRise" type="number" min="0.005" max="1" step="0.005" value="0.06"></div>
+          <div class="scenario-param-field"><label for="exFloodMax">Максимална височина (м) * — задължителна</label><input id="exFloodMax" type="number" min="0.1" max="30" step="0.1" placeholder="Въведи височина" required aria-describedby="floodHeightError"><small id="floodHeightError" class="scenario-control-status" role="status">Посочи височина, за да стартираш наводнението.</small></div>
+          <div class="scenario-param-field"><label for="exFloodStart">Начало (сек.)</label><input id="exFloodStart" type="number" min="0" max="3600" step="1" value="0"></div>
+        </div>
+        <div class="scenario-help-panel" id="floodScenarioHelp" hidden>
+          <strong>Как работи?</strong> Водата започва от етаж 1 и при покачване на нивото едновременно залива всички помещения на достигнатия етаж, независимо от стени, врати и прозорци. Няма кръгов фронт като при пожар. Задължително въведи максимална височина в метри; след достигането ѝ водата спира да се покачва. Това е учебно приближение без хидродинамично изчисление.
+        </div>
+      </section>
+      <section id="quakeScenarioSettings" class="scenario-settings-card" hidden>
+        <div class="scenario-settings-heading">
+          <h4>〰 Земетресение</h4>
+          <button type="button" class="scenario-info-toggle" aria-expanded="false" aria-controls="quakeScenarioHelp" aria-label="Информация за земетресението" title="Покажи информация">i</button>
+        </div>
+        <div class="scenario-param-grid">
+          <div class="scenario-param-field"><label for="exQuakeMagnitude">Магнитуд (1–10)</label><input id="exQuakeMagnitude" type="number" min="1" max="10" step="0.1" value="6.0"></div>
+          <div class="scenario-param-field"><label for="exQuakeDuration">Разклащане (сек.)</label><input id="exQuakeDuration" type="number" min="2" max="180" step="1" value="12"></div>
+        </div>
+        <label class="scenario-toggle-line"><input id="exQuakeCollapse" type="checkbox"> Условно срутване (8–8.9 по избор; от 9 автоматично)</label>
+        <div class="scenario-param-grid">
+          <div class="scenario-param-field"><label for="exCollapseAt">Срутване на секунда</label><input id="exCollapseAt" type="number" min="5" max="3600" step="1" value="55"><small id="quakeCollapseInfo" class="scenario-control-status" role="status">При магнитуд 9–10 срутването се определя автоматично.</small></div>
+        </div>
+        <div class="scenario-help-panel" id="quakeScenarioHelp" hidden>
+          <strong>Учебни реакции:</strong> под 3 — част от хората изчакват под подходящи мебели; 3–5.9 — горните етажи могат да изчакват; 6+ — търси се изход след края на разклащането. При магнитуд 8–8.9 има незадължително срутване; от 9 нагоре сградата автоматично се срутва на 5:00 при магнитуд 9 и на 3:00 при 10, като междинните стойности се закръгляват до 9 или 10. Всички етажи се разклащат едновременно в 2D и 3D. Това не са реални указания за безопасност: магнитудът сам по себе си не определя пораженията и не се препоръчва укриване под касите на вратите.
+        </div>
+      </section>
+      <section id="threatScenarioSettings" class="scenario-settings-card" hidden>
+        <div class="scenario-settings-heading">
+          <h4>🔒 Заплаха / сигнал за помощ</h4>
+          <button type="button" class="scenario-info-toggle" aria-expanded="false" aria-controls="threatScenarioHelp" aria-label="Информация за сценария със заплаха" title="Покажи информация">i</button>
+        </div>
+        <button id="addThreatMarker" class="small scenario-primary-action">＋ Добави обозначител на заплаха</button>
+        <label class="scenario-toggle-line"><input id="exSecurityEnhanced" type="checkbox"> Разширен сценарий с предупреждения и реакции</label>
+        <label class="scenario-toggle-line"><input id="exSecurityRoam" type="checkbox" checked> Схематично движение на обозначителите</label>
+        <label class="scenario-toggle-line"><input id="exSecurityRoomVisuals" type="checkbox" checked> Показвай реакции и пренареждане на мебели в стаите</label>
+        <div class="scenario-param-grid">
+          <div class="scenario-param-field"><label for="exSecurityWarningAt">Предупреждение (сек.)</label><input id="exSecurityWarningAt" type="number" min="0" max="3600" step="1" value="0"></div>
+          <div class="scenario-param-field"><label for="exSecurityEmergencyAt">Аварийна процедура (сек.)</label><input id="exSecurityEmergencyAt" type="number" min="0" max="3600" step="1" value="1"></div>
+          <div class="scenario-param-field"><label for="exSecurityEvacuationPercent">Автоматично напускане на стаята (%) — изключено</label><input id="exSecurityEvacuationPercent" type="number" min="0" max="0" step="1" value="0" disabled title="При заплаха групите остават по местата си в учебния модел"></div>
+          <div class="scenario-param-field"><label for="exSecurityRoamPeriod">Период на бавното движение / етаж (сек.)</label><input id="exSecurityRoamPeriod" type="number" min="75" max="360" step="5" value="105"></div>
+        </div>
+        <div class="scenario-event-readout" id="securityScenarioLive" role="status" aria-live="polite">Състояние: нормална дейност · започни симулацията за събития.</div>
+        <label class="scenario-toggle-line"><input id="exHelpCall" type="checkbox" checked> Покажи търсене на помощ / 112</label>
+        <div class="scenario-param-grid">
+          <div class="scenario-param-field"><label for="exHelpCallAt">Учебен сигнал (сек.)</label><input id="exHelpCallAt" type="number" min="0" max="3600" step="1" value="12"></div>
+          <div class="scenario-param-field"><label for="exSecurityHelpConfirm">Потвърждение (сек.)</label><input id="exSecurityHelpConfirm" type="number" min="0" max="3600" step="1" value="30"></div>
+          <div class="scenario-param-field"><label for="exSecurityHelpArrival">Учебно пристигане (сек.)</label><input id="exSecurityHelpArrival" type="number" min="0" max="3600" step="1" value="180"></div>
+        </div>
+        <div class="scenario-help-panel" id="threatScenarioHelp" hidden>
+          <strong>Как работи?</strong> Постави един или няколко обозначителя за заплаха. При включен разширен режим те се придвижват схематично бавно само във вътрешни коридорни участъци, със схематична смяна на етаж при съвпадащи стълбища; без преследване, насочване към хора или симулиране на нападение. Нивата на тревога преминават от нормална дейност през предупреждение към аварийна процедура. Хората остават в помещенията и изчакват инструкции; не се насочват към обозначителя на заплахата. В стаите с хора наличните мебели могат да се пренаредят с кратка схематична анимация в 2D/3D. Това не е реална барикада и не влияе на проходимостта на вратите. При препятствие обозначителят спира и се връща по същия участък, без да търси хора или други стаи. Сигналът до 112 е изцяло симулиран.
+        </div>
+      </section>
+    </div>
+    <div class="group" id="scenarioExtras">
+      <h3>Допълнителни системи <small>по избор</small></h3>
+      <label class="inline"><input id="exAlarms" type="checkbox"> 🔔 Пожарна аларма (изключена по подразбиране)</label>
+      <label for="exAlarmAt">Включване на алармата (сек.)</label>
+      <input id="exAlarmAt" type="number" min="0" max="3600" step="1" value="10">
+      <label class="inline"><input id="exSprinklers" type="checkbox"> 💧 Спринклери (изключени по подразбиране)</label>
+      <label for="exSprinklerAt">Активиране на спринклерите (сек.)</label>
+      <input id="exSprinklerAt" type="number" min="0" max="3600" step="1" value="18">
+      <label for="exSprinklerFactor">Скорост на разпространение на огъня след включване (%)</label>
+      <input id="exSprinklerFactor" type="number" min="10" max="100" step="5" value="55">
+      <p class="note">Учебна обща система за сградата. Включва се само ако я отметнеш.</p>
+    </div>
+    <div class="group" id="behaviorExtras">
+      <h3>Поведение на хората</h3>
+      <label class="inline"><input id="exBehavior" type="checkbox" checked> Индивидуална реакция</label>
+      <label for="exHesitant">Колебаещи се (%)</label>
+      <input id="exHesitant" type="number" min="0" max="100" value="15">
+      <label for="exFollowers">Следват други хора (%)</label>
+      <input id="exFollowers" type="number" min="0" max="100" value="12">
+      <label class="inline"><input id="exGroupTogether" type="checkbox"> Семейства/групи се придвижват заедно</label>
+      <p class="note">Учебен модел на стартово изчакване и обща скорост на групите.</p>
+    </div>
+    <div class="group" id="ventilationExtras">
+      <h3>Вентилация и дим</h3>
+      <label class="inline"><input id="exVentilation" type="checkbox"> Включи вентилацията</label>
+      <label for="exVentStrength">Интензитет (0 – 0.8)</label>
+      <input id="exVentStrength" type="number" min="0" max="0.8" step="0.1" value="0.45">
+      <label for="exVentDirection">Посока на въздушния поток (°)</label>
+      <input id="exVentDirection" type="number" min="0" max="359" step="5" value="0">
+      <p class="note">Добави вентилатори, шахти и отворени прозорци в плана. Вентилацията забавя натрупването на дим и облекчава движението около въздухообмена.</p>
+    </div>
+    <div class="group" id="timelineExtras">
+      <h3>Scenario Creator <small>по избор</small></h3>
+      <label class="inline"><input id="exTimeline" type="checkbox"> Включи времева линия на събития</label>
+      <div id="scenarioEventList"></div>
+      <button id="exAddEvent" class="small">+ Добави събитие</button>
+      <p class="note">Пример: пожар на 0:00, аларма на 0:10, врата се затваря на 0:20. Ако е изключено, събитията не влияят на симулацията.</p>
+    </div>
     <div class="group">
       <h3>Разпространение</h3>
       <label class="inline"><input id="showSpread" type="checkbox" checked> Покажи разпространението на картата</label>
@@ -202,12 +410,49 @@
       <div class="progress"><div id="bar"></div></div>
       <div class="note" id="status">Готово за симулация. Добави хора и изход.</div>
       <div class="note" id="simFloorInfo" style="margin-top:6px"></div>
+      <div class="note" id="systemStateLive" style="margin-top:6px"></div>
       <div id="bottleneckBox" style="margin-top:8px"></div>
+    </div>
+
+    <div class="group">
+      <h3>Графика и възпроизвеждане</h3>
+      <div id="simChart" class="sim-chart"><p class="note">Стартирай симулация, за да видиш графика на евакуацията.</p></div>
+      <div class="tracking-panel" id="agentTrackingPanel" aria-live="polite">
+        <h3>◎ Проследяване в 2D</h3>
+        <p class="note">По време на симулация щракни върху човек в плана, или въведи номер от списъка с хора.</p>
+        <div class="btnrow"><label class="track-id-label" for="trackAgentId">№ човек <input type="number" id="trackAgentId" min="1" step="1" placeholder="напр. 1"></label><button class="small" id="trackAgentGo">Следвай</button><button class="small ghost" id="trackAgentClear">Изчисти</button></div>
+        <p id="trackAgentInfo" class="note">Няма избран човек.</p>
+      </div>
+      <div class="chart-legend"><span class="lg safe"></span>евакуирани <span class="lg hazard"></span>в опасност <span class="lg smoke"></span>в дим</div>
+      <input id="replayRange" type="range" min="0" max="0" value="0" disabled aria-label="Възпроизвеждане във времето">
+      <div class="replay-row">
+        <button id="replayPrev" class="small" disabled title="Назад">‹</button>
+        <button id="replayNext" class="small" disabled title="Напред">›</button>
+        <button id="replayLive" class="small" disabled>● Живо</button>
+        <span class="note" id="replayTime">—</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <h3>Сравнение A/B</h3>
+      <div id="compareBox"><p class="note">Пусни симулация и запази резултата като база, после промени плана и сравни.</p></div>
+      <div class="btnrow" style="margin-top:6px">
+        <button id="saveBaseline" class="small">Запази като база</button>
+        <button id="clearBaseline" class="small">Изчисти</button>
+      </div>
     </div>
 
     <div class="group">
       <h3>Проверки</h3>
       <ul class="warn-list" id="warningsList"><li class="okline">Няма забележки.</li></ul>
+    </div>
+
+    <div class="group">
+      <h3>Валидатор на плана</h3>
+      <div class="note" id="validatorSummary">Провери стаи без врата, изолирани помещения, откачени изходи и застъпващи се обекти.</div>
+      <div class="btnrow" style="margin-top:6px">
+        <button id="validatePlanPanel" class="small primary">✓ Провери плана</button>
+      </div>
     </div>
 
     <div class="group">
@@ -231,14 +476,138 @@
         <div><i class="dot" style="background:#8c7cff"></i>Стълбище</div>
         <div><i class="dot" style="background:#639cff"></i>Хора</div>
         <div><i class="dot" style="background:#ff657a"></i>Опасна зона</div>
+        <div><i class="dot" style="background:#9aa7b8"></i>Дим</div>
+        <div><i class="sq" style="background:#bc8757"></i>Повърхност (Advanced Build)</div>
         <div><i class="dot" style="background:#43d49a"></i>В безопасност</div>
+        <div><i class="dot" style="background:#000"></i>Загинал (учебен модел)</div>
         <div class="wide"><i class="dot" style="background:#f5bb57"></i>Чакащи / опашка &nbsp; <i class="dot" style="background:#b8d7ff"></i>Движещи се</div>
         <div class="wide"><span style="display:inline-block;width:18px;border-top:2px dashed #42d3c5;vertical-align:middle;margin-right:6px"></span>Евакуационен маршрут</div>
+        <div><i class="dot" style="background:#63d8ff"></i>Вентилация</div>
+        <div><i class="dot" style="background:#ffe28a"></i>Прозорец</div>
+        <div class="wide"><span class="heat-swatch"></span>Топлинна карта: зелено → червено = гъстота на хората</div>
       </div>
       <p class="note" style="margin-top:8px">⚠ Учебен модел. Реалните планове се проверяват от компетентни специалисти.</p>
     </div>
   </aside>
 </main>
+
+<dialog id="smartImportDialog" class="smart-import-dialog" aria-label="Smart Import — снимка към 2D план">
+  <div class="dialog-head"><div><h2>✦ Smart Import — снимка към 2D</h2>
+    <p class="note">Разпознаване и ръчна корекция преди добавяне към етажа · работи локално</p></div>
+    <button class="icon" data-close="smartImportDialog" aria-label="Затвори">✕</button></div>
+  <div class="dialog-body">
+    <p class="smart-import-warning"><strong>Важно:</strong> от снимка на фасада не може да се възстанови действителното вътрешно разпределение. От етажен план се извличат само предполагаеми помещения. Предположенията за врати/прозорци се избират ръчно; аварийни изходи и безопасност се проверяват отделно.</p>
+    <div class="smart-import-controls">
+      <button id="smartPick" class="primary small">＋ Избери PNG/JPG снимка</button>
+      <input id="smartBrowserFile" type="file" accept=".png,.jpg,.jpeg,.webp,.bmp,image/png,image/jpeg,image/webp" hidden>
+      <label>Вид изображение <select id="smartMode" title="Избери снимка на план или фасада"><option value="plan">Етажен план / скица</option><option value="facade">Снимка на фасада</option></select></label>
+      <label>Прибл. ширина на обекта (м) <input id="smartWidthMeters" type="number" min="3" max="200" value="24" step="1"></label>
+      <button id="smartAnalyze" class="small">↻ Анализирай</button>
+    </div>
+    <p id="smartFileName" class="note">Не е избран файл.</p>
+    <div class="smart-import-layout">
+      <section class="smart-import-preview">
+        <canvas id="smartCanvas" width="720" height="460" aria-label="Преглед на снимката с предложени очертания"></canvas>
+        <p class="note">Избери инструмент отдолу. С „Помещение“ плъзни правоъгълник, а с „Врата“, „Изход“, „Хора“ и другите инструменти щракни направо върху скицата. Не е необходимо да се връщаш към главния план.</p>
+        <div class="sketch-toolbar" id="smartSketchToolbar" role="toolbar" aria-label="Инструменти върху скицата">
+          <button type="button" class="small active" data-sketch-tool="room" aria-pressed="true">▧ Помещение</button>
+          <button type="button" class="small" data-sketch-tool="door">▱ Врата</button>
+          <button type="button" class="small" data-sketch-tool="exit">⇧ Изход</button>
+          <button type="button" class="small" data-sketch-tool="window">▤ Прозорец</button>
+          <button type="button" class="small" data-sketch-tool="stairs">▥ Стълби</button>
+          <button type="button" class="small" data-sketch-tool="safezone">◎ Изчакване</button>
+          <button type="button" class="small" data-sketch-tool="people">● Хора</button>
+          <button type="button" class="small" data-sketch-tool="furniture">▣ Мебел</button>
+          <button type="button" class="small" data-sketch-tool="erase">⌫ Изтрий</button>
+        </div>
+        <div class="sketch-options">
+          <label>Хора с едно щракване <input id="smartManualPeopleCount" type="number" min="1" max="500" value="1"></label>
+          <label>Мебел <select id="smartSketchFurniture"><option value="desk">Чин/бюро</option><option value="table">Маса</option><option value="chair">Стол</option><option value="bed">Легло</option><option value="shelf">Шкаф</option></select></label>
+          <button id="smartUndo" class="small" type="button">↶ Отмени последното</button>
+        </div>
+        <p id="smartToolHint" class="note" aria-live="polite">Плъзни, за да добавиш помещение.</p>
+        <div class="smart-import-tools" id="smartPlanOptions">
+          <label>Праг за разпознаване: <strong id="smartThresholdLabel">165</strong><input id="smartThreshold" type="range" min="65" max="230" step="5" value="165"></label>
+          <label class="inline" title="Коригира локалните сенки и неравномерно осветяване на планове. Не е обучен AI модел."><input id="smartAdaptive" type="checkbox" checked> Подобри контраста на заснет план</label>
+        </div>
+        <div class="btnrow"><button id="smartClearRegions" class="small danger">Изчисти очертанията</button></div>
+      </section>
+      <section class="smart-import-proposals">
+        <h3>Разпознати области и разположение на хора</h3>
+        <p id="smartSummary" class="note" aria-live="polite">Избери изображение.</p>
+        <label class="inline smart-people-toggle"><input id="smartAddPeople" type="checkbox"> Добави предложени групи хора (по избор)</label>
+        <label class="inline smart-people-toggle"><input id="smartAddFurniture" type="checkbox"> Добави автоматично примерни мебели, ако няма избрани разпознати чинове (по избор)</label>
+        <h4>Врати и прозорци — предложения за потвърждение</h4>
+        <p class="note">Геометричен анализ на видими прекъсвания в стени. Възможни са грешни предложения: не се добавят без изрична отметка. При липса на сигурни следи ги постави ръчно.</p>
+        <div class="smart-regions" id="smartOpenings"></div>
+        <h4>Разпознати чинове и мебели — потвърждение</h4>
+        <p class="note" id="smartDeskSummary">Предположенията за чинове ще се покажат след анализа. Не се импортират автоматично.</p>
+        <div class="btnrow smart-bulk-actions"><button id="smartSelectAllDesks" type="button" class="small">✓ Потвърди всички предложени чинове</button>
+        <button id="smartClearAllDesks" type="button" class="small ghost">Изключи всички</button></div>
+        <h4>Чинове и ръчно добавени обекти върху скицата</h4>
+        <div class="smart-regions" id="smartManualObjects"></div>
+        <p class="note">Ръчно добавените изходи, врати и групи хора се прехвърлят към плана заедно със стаите. Провери всички връзки и мащаба.</p>
+        <div id="smartRegions" class="smart-regions"></div>
+      </section>
+    </div>
+  </div>
+  <div class="dialog-foot"><span class="note">Планът трябва да бъде проверен преди симулация.</span>
+    <span style="flex:1"></span><button data-close="smartImportDialog">Отказ</button>
+    <button id="smartApply" class="primary" disabled>Добави към текущия етаж и провери</button></div>
+</dialog>
+
+<dialog id="scene3dDialog" class="scene3d-dialog" aria-label="3D анимация на евакуацията">
+  <div class="dialog-head scene3d-head">
+    <div><h2>◈ 3D Studio — евакуация</h2><p class="note">Детайлни фигури · походка по реалните маршрути · архитектурен изглед · видео</p></div>
+    <button class="icon" data-close="scene3dDialog" aria-label="Затвори 3D изгледа">✕</button>
+  </div>
+  <div class="scene3d-body">
+    <div class="scene3d-stage">
+      <canvas id="scene3dCanvas" aria-label="Триизмерна визуализация на етажите, хората, огъня и дима"></canvas>
+      <button id="scene3dRestartSimulation" type="button" class="restart-finished scene3d-restart" hidden aria-label="Върни 3D симулацията в началното състояние">↻ RESTART · Върни в началото</button>
+      <div class="scene3d-corner">Влачи за завъртане · Shift + влачене за преместване · колелце за мащаб · двоен клик за нулиране</div>
+      <div id="scene3dMode" class="scene3d-mode">3D Studio</div>
+      <div id="scene3dRenderer" class="scene3d-renderer">WebGL 3D</div>
+      <div class="scene3d-legend" aria-label="Цветове на маркерите под хората">
+        <span><i class="scene3d-dot moving"></i> Движение</span>
+        <span><i class="scene3d-dot queued"></i> Опашка</span>
+        <span><i class="scene3d-dot safe"></i> Безопасно</span>
+        <span><i class="scene3d-dot danger"></i> Без маршрут</span>
+        <span><i class="scene3d-dot threat"></i> Обозначител на заплаха</span>
+        <span><i class="scene3d-dot smoke"></i> Дим (сив слой)</span>
+      </div>
+    </div>
+    <div class="scene3d-stats" aria-live="off">
+      <div><small>ВРЕМЕ</small><strong id="scene3dTime">0:00.0</strong></div>
+      <div><small>ЕВАКУИРАНИ + В ЗОНА</small><strong id="scene3dSafe">—</strong></div>
+      <div><small>НА ОПАШКА</small><strong id="scene3dQueue">—</strong></div>
+      <div><small>ЗАГИНАЛИ</small><strong id="scene3dFatal">0</strong></div>
+      <div><small>ОГЪН / ДИМ</small><strong id="scene3dDanger">—</strong></div>
+      <div><small>3D ФИГУРИ</small><strong id="scene3dShown">0</strong></div>
+    </div>
+    <div class="scene3d-controls">
+      <div class="scene3d-buttons">
+        <button id="scene3dStart" class="primary small">▶ Стартирай 3D</button>
+        <button id="scene3dPlay" class="small">▶ Пусни симулация</button>
+        <button id="scene3dLive" class="small">● Живо</button>
+        <label>Скорост <select id="scene3dPlaybackSpeed" title="Скорост на 3D записа"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+        <label>Етаж <select id="scene3dFloor" title="Покажи всички или избран етаж"><option value="all">Всички етажи</option></select></label>
+        <label>Детайл <select id="scene3dQuality" title="Детайл на 3D фигурите и максимален брой за рисуване"><option value="fast">Бърз</option><option value="balanced" selected>Балансиран</option><option value="high">Висок</option></select></label>
+        <label class="scene3d-smoke-toggle" title="Показва лек сив слой само в достигнатите от дима помещения; няма влияние върху симулацията"><input id="scene3dSmoke" type="checkbox" checked> Покажи дима</label>
+        <label>Стени <select id="scene3dWalls" title="Ниски стени за видимост или пълна височина"><option value="cutaway" selected>Срязани</option><option value="full">Пълни</option><option value="none">Скрити</option></select></label>
+        <label>Камера <select id="scene3dCameraMode"><option value="orbit">Свободна</option><option value="top">Отгоре (2.5D)</option><option value="follow">Следвай човек</option><option value="pov">През очите</option></select></label>
+        <label>Човек <select id="scene3dFollowAgent" title="Избери човека за кинематографичен режим"><option value="">Първият движещ се</option></select></label>
+        <button id="scene3dFocus" class="small" title="Приближи камерата към движещите се хора">◎ Към хората</button>
+        <button id="scene3dReset" class="small">↻ Камера</button>
+        <button id="scene3dPhoto" class="small">▣ PNG кадър</button>
+        <button id="scene3dRecord" class="small">● Запиши WebM</button>
+      </div>
+      <div class="scene3d-timeline"><span>0:00</span><input id="scene3dTimeline" type="range" min="0" max="1000" value="0" step="1" disabled aria-label="Превърти 3D симулацията"><span id="scene3dTimelineEnd">0:00.0</span></div>
+      <p id="scene3dInfo" class="note">Планът е готов. Натисни „Стартирай 3D“, за да видиш движението.</p>
+    </div>
+  </div>
+  <div class="dialog-foot"><span class="note">Учебен модел, не сертифициран 3D пожарен симулатор.</span><button data-close="scene3dDialog" class="primary small">Затвори</button></div>
+</dialog>
 
 <dialog id="settingsDialog">
   <div class="dialog-head"><h2>Настройки</h2><button class="icon" data-close="settingsDialog">✕</button></div>
@@ -256,13 +625,31 @@
         <input id="setFlow" type="number" min=".1" max="5" step=".1">
         <label for="setSpreadSpeed">Скорост на разпространение (м/s)</label>
         <input id="setSpreadSpeed" type="number" min=".02" max="10" step=".05">
-        <p class="note">Използва се за опасни зони без собствена скорост.</p>
+        <label for="setFireSpeedMultiplier">Огън: скорост спрямо зададената (%)</label>
+        <input id="setFireSpeedMultiplier" type="number" min="20" max="150" step="5">
+        <label for="setFireExposureLimit">Излагане на огън преди летален изход (сек., учебно)</label>
+        <input id="setFireExposureLimit" type="number" min="5" max="600" step="5">
+        <label for="setSmokeFactor">Дим: пъти по-бърз от огъня</label>
+        <input id="setSmokeFactor" type="number" min="1" max="5" step=".1">
+        <label for="setSmokeSlowdown">Скорост в дим (% от нормалната)</label>
+        <input id="setSmokeSlowdown" type="number" min="20" max="100" step="5">
+        <label for="setSmokeVisibility">Видимост в дим (м, учебен параметър)</label>
+        <input id="setSmokeVisibility" type="number" min="1" max="30" step="1">
+        <p class="note">Огънят по подразбиране е забавен до 80% от предишната скорост. След зададеното време на излагане фигурите спират и стават черни. Това е условен ефект, НЕ медицински праг. Димът се включва само при пожар.</p>
       </div>
       <div class="help-card">
         <h4>Редактор и запис</h4>
         <label class="inline"><input id="setAutosave" type="checkbox"> Автоматично запазване в браузъра</label>
         <label class="inline"><input id="setShowRoutes" type="checkbox"> Показвай маршрутите</label>
         <label class="inline"><input id="setShowGrid" type="checkbox"> Показвай мрежата</label>
+        <label class="inline"><input id="setShowSmoke" type="checkbox"> Показвай дима</label>
+        <label class="inline"><input id="setShowHeatmap" type="checkbox"> Показвай топлинната карта</label>
+        <label class="inline"><input id="setMovementEffects" type="checkbox"> Следи, стрелки и цветни задръствания в 2D (изключено по подразбиране)</label>
+        <p class="note">Изключването им скрива само допълнителната визуализация — не променя движението и резултатите от симулацията.</p>
+        <label class="inline"><input id="setDynamicRouting" type="checkbox"> Динамично пренасочване при блокиран път</label>
+        <label for="setFireExitSafety">Опасно близък пожар до изход (метри)</label>
+        <input id="setFireExitSafety" type="number" min="0.5" max="10" step="0.5" value="2">
+        <p class="note">При пожар до това разстояние по достъпен проход изходът става опасен. Хората търсят алтернативен изход. Плътните стени не се пресичат при тази проверка. Работи с включено динамично пренасочване.</p>
         <label class="inline"><input id="setSnap" type="checkbox"> Прилепвай към мрежа (10 px)</label>
         <label for="setPreMovementDefault">Реакция по подразбиране (s)</label>
         <input id="setPreMovementDefault" type="number" min="0" max="600" step="1" placeholder="автоматично според сценария">
@@ -270,9 +657,31 @@
       </div>
     </div>
     <div class="help-card" style="margin-top:12px">
+      <h4>Профили на хората (учебни допускания)</h4>
+      <p class="note">Процентите са от общия брой хора; остатъкът са възрастни със стандартна скорост. За нови проекти трудноподвижните са 0% и се добавят само по избор. Различните скорости и реакции са примерни, не нормативни.</p>
+      <label for="profile-children">Деца (%)</label><input id="profile-children" type="number" min="0" max="100" step="1">
+      <label for="profile-older">Възрастни хора (%)</label><input id="profile-older" type="number" min="0" max="100" step="1">
+      <label for="profile-limited">Хора с ограничена подвижност (%) — по избор</label><input id="profile-limited" type="number" min="0" max="100" step="1">
+    </div>
+    <div class="help-card" style="margin-top:12px">
+      <h4>Вятър, асансьори и безопасни зони</h4>
+      <label for="setWindDirection">Посока на вятъра (°; 0 = надясно, 90 = надолу)</label>
+      <input id="setWindDirection" type="number" min="0" max="359" step="5">
+      <label for="setWindStrength">Сила на вятъра (0–0.8, условна)</label>
+      <input id="setWindStrength" type="number" min="0" max="0.8" step="0.1">
+      <label class="inline"><input id="setWaitForAssistance" type="checkbox"> Трудноподвижните да изчакват помощ в безопасна зона</label>
+      <label class="inline"><input id="setAllowFireElevator" type="checkbox"> Учебен контраст: позволи асансьор при пожар (НЕ Е БЕЗОПАСНО)</label>
+      <p class="note">В стандартния сценарий за пожар асансьорите не участват в маршрутите.</p>
+    </div>
+    <div class="help-card" style="margin-top:12px">
       <h4>Авто-запис</h4>
       <p class="note" id="autosaveInfo">Няма данни.</p>
       <button id="clearAutosave" class="small danger">Изчисти авто-записа</button>
+    </div>
+    <div class="help-card" style="margin-top:12px">
+      <h4>Актуализации и подпис</h4>
+      <p class="note" id="updateStatus">Версия 0.11.10 · ръчна проверка. Автоматичните обновявания изискват конфигуриран сървър и подписан инсталатор.</p>
+      <button id="checkUpdates" class="small">Провери за актуализации</button>
     </div>
   </div>
   <div class="dialog-foot">
@@ -287,6 +696,7 @@
     <label class="inline"><input type="radio" name="exportFormat" value="svg" checked> SVG — векторна карта</label>
     <label class="inline"><input type="radio" name="exportFormat" value="png"> PNG — изображение</label>
     <label class="inline"><input type="radio" name="exportFormat" value="pdf"> PDF — отчет с всички етажи</label>
+    <label class="inline"><input type="radio" name="exportFormat" value="csv"> CSV — времеви редове от симулацията</label>
     <label for="exportScope" style="margin-top:12px">Обхват</label>
     <select id="exportScope">
       <option value="current">Текущ етаж</option>
@@ -295,7 +705,7 @@
     <label class="inline" style="margin-top:10px"><input id="exportRoutes" type="checkbox" checked> Включи маршрутите</label>
     <label class="inline"><input id="exportAgents" type="checkbox" checked> Включи хората от последната симулация</label>
     <label class="inline"><input id="exportLegend" type="checkbox" checked> Включи заглавие и легенда</label>
-    <p class="note">PNG и SVG експортират избрания етаж. PDF отчетът включва всички етажи, статистика и проверки.</p>
+    <p class="note">PNG и SVG експортират избрания етаж. PDF отчетът включва всички етажи, статистика, графика и проверки. CSV съдържа времевите редове (евакуирани, опашки, дим, опасност).</p>
   </div>
   <div class="dialog-foot">
     <button data-close="exportDialog">Отказ</button>
@@ -304,10 +714,23 @@
 </dialog>
 
 <dialog id="libraryDialog">
-  <div class="dialog-head"><h2>Библиотека с тестови сгради</h2><button class="icon" data-close="libraryDialog">✕</button></div>
+  <div class="dialog-head library-dialog-head">
+    <h2>Библиотека с тестови сгради</h2>
+    <fieldset class="library-build-choices" aria-label="Как да се генерира сградата">
+      <legend>Вариант на сградата</legend>
+      <label title="Запазва оригиналния вид на библиотечния шаблон"><input id="libModeStandard" type="checkbox" checked> Стандартна</label>
+      <label title="Автоматично добавя мебели в стаите, без да добавя допълнителни хора"><input id="libModeFurnished" type="checkbox"> Обзаведена</label>
+      <label title="Добавя тухлени стени и зони с различни материали"><input id="libModeAdvanced" type="checkbox"> Advanced Build</label>
+    </fieldset>
+    <button class="icon" data-close="libraryDialog" aria-label="Затвори">✕</button>
+  </div>
   <div class="dialog-body">
-    <p class="note">Процедурно генерирани сгради за тестове и демонстрации. Всяка стая има врата към коридора, а стените спират разпространението на пожар/вода.</p>
-    <div class="library-grid" id="libraryPresets"></div>
+    <p class="note">Избери сграда и вариант от отметките горе вдясно. „Стандартна“ е досегашният шаблон; „Обзаведена“ и „Advanced Build“ могат да се комбинират. Обзавеждането не добавя нови хора. Advanced Build включва учебни материали, повърхности и тухлени стени.</p>
+      <div class="library-grid" id="libraryPresets"></div>
+      <div class="help-card" style="margin-top:10px">
+        <button id="runAllTests" class="small primary">✓ Провери всички тестови сгради</button>
+        <div id="allTestsResults" class="test-results" aria-live="polite"><p class="note">Автоматична проверка на графа, маршрутите и симулацията за всеки шаблон.</p></div>
+      </div>
     <div class="help-grid" style="margin-top:12px">
       <div class="help-card">
         <label for="libSeed">Seed (номер)</label>
@@ -315,7 +738,12 @@
         <label for="libFloors">Етажи</label>
         <input id="libFloors" type="number" min="1" max="6" step="1" value="2">
         <label for="libRooms">Стаи на страна</label>
-        <input id="libRooms" type="number" min="1" max="5" step="1" value="3">
+        <input id="libRooms" type="number" min="1" max="6" step="1" value="3">
+        <label for="libStairs">Стълбища на етаж</label>
+        <select id="libStairs">
+          <option value="1">1 стълбище</option>
+          <option value="2" selected>2 стълбища</option>
+        </select>
       </div>
       <div class="help-card">
         <label for="libPeople">Хора в стая</label>
@@ -326,6 +754,16 @@
           <option value="flood">Наводнение</option>
           <option value="none">Без опасност</option>
         </select>
+        <div class="library-profile-option">
+          <label class="inline" for="libIncludeLimited"><input id="libIncludeLimited" type="checkbox"> Добави хора с ограничена подвижност</label>
+          <label for="libLimitedPercent">Процент от всички хора (%)</label>
+          <input id="libLimitedPercent" type="number" min="0" max="70" step="1" value="5" disabled>
+          <p class="note">Изключено по подразбиране (0%). По-късно може да го промениш от „Настройки → Профили на хората“.</p>
+          <label class="inline"><input id="libIncludeAlarms" type="checkbox"> Добави пожарни аларми</label>
+          <label class="inline"><input id="libIncludeSprinklers" type="checkbox"> Добави спринклери</label>
+          <label class="inline"><input id="libIncludeTimeline" type="checkbox"> Активирай Scenario Creator</label>
+          <p class="note">Всички тези опции са изключени по подразбиране.</p>
+        </div>
         <p class="note" id="libSummary">—</p>
       </div>
     </div>
@@ -338,14 +776,28 @@
   </div>
 </dialog>
 
+<dialog id="validatorDialog">
+  <div class="dialog-head"><h2>Валидатор на плана</h2><button class="icon" data-close="validatorDialog">✕</button></div>
+  <div class="dialog-body">
+    <div class="validator-counts" id="validatorCounts">—</div>
+    <p class="note">Учебна проверка за типични грешки. Не заменя инженерна експертиза. Клик върху ред избира обекта на плана.</p>
+    <div id="validatorList" class="validator-list"></div>
+  </div>
+  <div class="dialog-foot">
+    <button data-close="validatorDialog">Затвори</button>
+    <button id="validatorRun" class="primary">Провери отново</button>
+  </div>
+</dialog>
+
 <dialog id="helpDialog">
-  <div class="dialog-head"><h2>Помощ / v0.5.0</h2><button class="icon" data-close="helpDialog">✕</button></div>
+  <div class="dialog-head"><h2>Помощ / v0.10.2</h2><button class="icon" data-close="helpDialog">✕</button></div>
   <div class="dialog-body">
     <div class="help-grid">
       <div class="help-card">
         <h4>Бърз старт</h4>
         <ul>
           <li>Натисни <strong>Примерен план</strong>, за да видиш двуетажна сграда.</li>
+          <li><strong>✦ Smart Import</strong> — извлечи предполагаеми помещения от PNG/JPG етажен план, поправи ги и по избор предложи групи хора. Снимка на фасада не разкрива вътрешен план.</li>
           <li>Начертай помещение и коридор с инструментите.</li>
           <li>Сложи <strong>врата</strong> на границата между помещение и коридор.</li>
           <li>Добави <strong>авариен изход</strong> и <strong>стълбище</strong>.</li>
@@ -355,7 +807,7 @@
       <div class="help-card">
         <h4>Управление</h4>
         <ul>
-          <li><strong>V</strong> избор, <strong>R</strong> помещение, <strong>C</strong> коридор, <strong>D</strong> врата, <strong>E</strong> изход, <strong>S</strong> стълбище, <strong>P</strong> хора, <strong>H</strong> опасност.</li>
+          <li><strong>V</strong> избор, <strong>R</strong> помещение, <strong>C</strong> коридор, <strong>M</strong> повърхност, <strong>D</strong> врата, <strong>E</strong> изход, <strong>S</strong> стълбище, <strong>P</strong> хора, <strong>H</strong> опасност.</li>
           <li><strong>Ctrl+Z / Ctrl+Y</strong> — отмяна и повторение.</li>
           <li><strong>Delete</strong> — изтриване; <strong>Esc</strong> — отказ.</li>
           <li><strong>Alt + плъзгане</strong> — панорама; колело — мащаб.</li>
@@ -371,12 +823,31 @@
         <p class="note">Опасността минава само през врати, изходи и стълбища — стените я спират. Затова всяка стая трябва да има врата към коридора.</p>
       </div>
       <div class="help-card">
+        <h4>Дим, топлинна карта и пренасочване</h4>
+        <p>При пожар димът се разпространява по-бързо от огъня (по подразбиране 2.2×) по същите врати и изходи. Хората в дим се движат по-бавно — процентът е в „Настройки“.</p>
+        <p>„Топлина“ оцветява помещенията според гъстотата на хората — от зелено към червено. „Динамично пренасочване“ кара хората да поемат по обходен път, когато опасността отреже ребро от маршрута им; вече преминатите врати остават отчетени. Ако пожарът достигне зададената близост до изход (по подразбиране 2 метра по проходими връзки), този изход се избягва още преди пламъците да стигнат до него. Хората търсят друг изход; без алтернатива се отчитат като без безопасен маршрут.</p>
+      </div>
+      <div class="help-card">
+        <h4>Графика, възпроизвеждане и A/B</h4>
+        <p>След старт се записва времева редица. Плъзгачът връща картата и статистиката назад във времето, без да спира симулацията; „● Живо“ се връща към текущия момент. Графиката показва евакуирани, хора в опасност и в дим.</p>
+        <p>„Запази като база“ пази резултата. След промяна на врата, изход или сценарий пусни отново и виж разликата във време, евакуирани и опашки.</p>
+      </div>
+      <div class="help-card">
+        <h4>Валидатор и CSV</h4>
+        <p>„✓ Валидатор“ проверява за стаи без врата, изолирани помещения, откачени изходи/стълбища, тесни врати, застъпващи се обекти и липса на хора. Клик върху проблем го избира на плана.</p>
+        <p>Експортът „CSV“ съдържа времевите редове от симулацията — удобно за Excel и анализ.</p>
+      </div>
+      <div class="help-card">
         <h4>Библиотека с тестови сгради</h4>
-        <p>Бутонът „▦ Библиотека“ генерира училище, офис, хотел, болница или търговски център. Избираш seed, етажи, стаи на страна, хора в стая и вид опасност. Всяка стая получава врата към коридора, изходите са в двата края, а стълбището е на еднаква позиция на всички етажи.</p>
+        <p>Бутонът „▦ Библиотека“ генерира училище, офис, хотел, болница, търговски център или жилищна сграда. Избираш seed, етажи, стаи на страна, хора в стая, брой стълбища и вид опасност. Всяка стая получава врата към коридора, изходите са в двата края, а стълбищата са на еднакви позиции на всички етажи.</p>
+      </div>
+      <div class="help-card">
+        <h4>Advanced Build</h4>
+        <p>В лявото меню избери Advanced Build. Задай материал на стая или очертай повърхност (M). Ако покрие 30% от площта, променя учебните коефициенти за движение и разпространение на пожар, вода и дим в помещението.</p>
       </div>
       <div class="help-card">
         <h4>Ограничения</h4>
-        <p>Моделът е учебен: не изчислява дим, структурни повреди, реална геометрия на стени, психология на тълпата или сертифицирани времена. Не използвай резултатите за одобряване на реален евакуационен план.</p>
+        <p>Моделът е учебен: димът е опростен слой, който забавя движението, но не изчислява видимост, токсичност или слоеве. Не се моделират структурни повреди, реална геометрия на стени, психология на тълпата или сертифицирани времена. Не използвай резултатите за одобряване на реален евакуационен план.</p>
       </div>
     </div>
   </div>
@@ -406,9 +877,24 @@
 <div id="toast"></div>
 <div id="printReport"></div>
 
+<script src="material-library.js"></script>
+<script src="scenario-extras.js"></script>
+<script src="disaster-presets.js"></script>
+<script src="security-incident.js"></script>
 <script src="simulation-engine.js"></script>
+<script src="furniture-navigation.js"></script>
 <script src="simulation-runner.js"></script>
 <script src="building-library.js"></script>
+<script src="plan-validator.js"></script>
+<script src="dxf-lite.js"></script>
+<script src="smart-import.js"></script>
+<script src="furnishing.js"></script>
+<script src="sketch-tools.js"></script>
+<script src="smart-import-ui.js"></script>
+<script src="flood-footprint.js"></script>
+<script src="scene3d.js"></script>
+<script src="scene3d-ui.js"></script>
+<script src="label-layout.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

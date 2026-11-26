@@ -1,0 +1,60 @@
+{
+  "format": "evacuation-simulator",
+  "version": "0.10.3",
+  "projectName": "Два предупредителни символа и сигнал за помощ",
+  "settings": {
+    "pxPerMeter": 25,
+    "floorHeight": 3.2,
+    "walkSpeed": 1.25,
+    "specificFlow": 1.3,
+    "scenario": "lockdown",
+    "showSpread": true,
+    "showSmoke": true,
+    "showRoutes": true,
+    "preMovement": 0,
+    "populationProfiles": {
+      "children": 0,
+      "older": 0,
+      "limited": 0
+    },
+    "threatHelpCallEnabled": true,
+    "threatHelpCallAtSeconds": 10
+  },
+  "floors": [
+    {
+      "id": "floor0",
+      "name": "Етаж 1",
+      "items": [
+        {
+          "id": "meeting",
+          "type": "room",
+          "x": 70,
+          "y": 85,
+          "w": 220,
+          "h": 160,
+          "people": 10,
+          "name": "meeting"
+        },
+        {
+          "id": "signal1",
+          "type": "threat",
+          "x": 360,
+          "y": 220,
+          "name": "Символ 1",
+          "entryAtSeconds": 0
+        },
+        {
+          "id": "signal2",
+          "type": "threat",
+          "x": 480,
+          "y": 80,
+          "name": "Символ 2",
+          "entryAtSeconds": 15
+        }
+      ],
+      "backdrop": null
+    }
+  ],
+  "attachments": [],
+  "baseline": null
+}

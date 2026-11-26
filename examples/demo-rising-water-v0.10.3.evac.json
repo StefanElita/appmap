@@ -1,0 +1,86 @@
+{
+  "format": "evacuation-simulator",
+  "version": "0.10.3",
+  "projectName": "Вода от приземното ниво — максимум 3.8 м",
+  "settings": {
+    "pxPerMeter": 25,
+    "floorHeight": 3.2,
+    "walkSpeed": 1.25,
+    "specificFlow": 1.3,
+    "scenario": "flood",
+    "showSpread": true,
+    "showSmoke": true,
+    "showRoutes": true,
+    "preMovement": 18,
+    "populationProfiles": {
+      "children": 0,
+      "older": 0,
+      "limited": 0
+    },
+    "floodGroundRiseEnabled": true,
+    "floodStartSeconds": 5,
+    "floodRiseMetersPerSecond": 0.13,
+    "floodMaxHeightMeters": 3.8
+  },
+  "floors": [
+    {
+      "id": "floor0",
+      "name": "Етаж 1",
+      "items": [
+        {
+          "id": "ground",
+          "type": "room",
+          "x": 65,
+          "y": 55,
+          "w": 260,
+          "h": 180,
+          "people": 12,
+          "name": "ground"
+        },
+        {
+          "id": "exit-ground",
+          "type": "exit",
+          "x": 316,
+          "y": 125,
+          "width": 1.2
+        },
+        {
+          "id": "stairs-ground",
+          "type": "stairs",
+          "x": 85,
+          "y": 170,
+          "width": 1.2,
+          "shaft": "S"
+        }
+      ],
+      "backdrop": null
+    },
+    {
+      "id": "floor1",
+      "name": "Етаж 2",
+      "items": [
+        {
+          "id": "upper",
+          "type": "room",
+          "x": 65,
+          "y": 55,
+          "w": 260,
+          "h": 180,
+          "people": 8,
+          "name": "upper"
+        },
+        {
+          "id": "stairs-up",
+          "type": "stairs",
+          "x": 85,
+          "y": 170,
+          "width": 1.2,
+          "shaft": "S"
+        }
+      ],
+      "backdrop": null
+    }
+  ],
+  "attachments": [],
+  "baseline": null
+}

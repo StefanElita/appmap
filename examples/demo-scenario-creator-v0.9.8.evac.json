@@ -1,0 +1,190 @@
+{
+  "format": "evacuation-simulator",
+  "version": "0.9.8",
+  "projectName": "Демо · Сценарий със събития и системи",
+  "updatedAt": "2026-11-24T21:02:09.549Z",
+  "settings": {
+    "pxPerMeter": 25,
+    "floorHeight": 3.2,
+    "walkSpeed": 1.25,
+    "specificFlow": 1.3,
+    "preMovement": null,
+    "scenario": "fire",
+    "autosave": true,
+    "showRoutes": true,
+    "showGrid": true,
+    "snap": true,
+    "spreadSpeed": 0.4,
+    "showSpread": true,
+    "dynamicRouting": true,
+    "populationProfiles": {
+      "children": 15,
+      "older": 15,
+      "limited": 0
+    },
+    "alarmsEnabled": true,
+    "alarmAtSeconds": 10,
+    "sprinklersEnabled": true,
+    "sprinklerAtSeconds": 24,
+    "sprinklerFactor": 0.5,
+    "scenarioCreatorEnabled": true,
+    "behaviorEnabled": true,
+    "hesitantPercent": 20,
+    "followerPercent": 15,
+    "groupTogether": true,
+    "ventilationEnabled": true,
+    "ventilationStrength": 0.45,
+    "ventilationDirection": 90,
+    "timelineEvents": [
+      {
+        "id": "ignite",
+        "type": "ignition",
+        "atSeconds": 0,
+        "targetId": "lib2026-10"
+      },
+      {
+        "id": "alarm",
+        "type": "alarm",
+        "atSeconds": 10,
+        "targetId": ""
+      },
+      {
+        "id": "close",
+        "type": "door-close",
+        "atSeconds": 18,
+        "targetId": "lib2026-4"
+      },
+      {
+        "id": "sprinkle",
+        "type": "sprinkler",
+        "atSeconds": 24,
+        "targetId": ""
+      }
+    ]
+  },
+  "floors": [
+    {
+      "id": "lib2026-9",
+      "name": "Етаж 1",
+      "items": [
+        {
+          "id": "lib2026-1",
+          "type": "corridor",
+          "name": "Коридор 1",
+          "x": 150,
+          "y": 250,
+          "w": 600,
+          "h": 90,
+          "width": 1.8,
+          "materialId": "concrete"
+        },
+        {
+          "id": "lib2026-2",
+          "type": "room",
+          "name": "Склад (тест)",
+          "x": 154,
+          "y": 70,
+          "w": 592,
+          "h": 170,
+          "people": 0,
+          "teachers": 0,
+          "materialId": "concrete",
+          "width": 1.2
+        },
+        {
+          "id": "lib2026-3",
+          "type": "room",
+          "name": "Класна стая 102",
+          "x": 154,
+          "y": 350,
+          "w": 592,
+          "h": 170,
+          "people": 6,
+          "teachers": 1,
+          "width": 1.2
+        },
+        {
+          "id": "lib2026-4",
+          "type": "door",
+          "name": "Врата Класна стая 101",
+          "x": 450,
+          "y": 245,
+          "width": 1.2
+        },
+        {
+          "id": "lib2026-5",
+          "type": "door",
+          "name": "Врата Класна стая 102",
+          "x": 450,
+          "y": 345,
+          "width": 1.2
+        },
+        {
+          "id": "lib2026-6",
+          "type": "exit",
+          "name": "Изход ляв 1",
+          "x": 164,
+          "y": 295,
+          "width": 1.2
+        },
+        {
+          "id": "lib2026-7",
+          "type": "exit",
+          "name": "Изход десен 1",
+          "x": 736,
+          "y": 295,
+          "width": 1.2
+        },
+        {
+          "id": "lib2026-8",
+          "type": "stairs",
+          "name": "Стълбище · ет. 1",
+          "x": 450,
+          "y": 295,
+          "width": 1.6,
+          "shaft": "lib2026-S1"
+        },
+        {
+          "id": "lib2026-10",
+          "type": "hazard",
+          "name": "Огнище (тест)",
+          "x": 450,
+          "y": 155,
+          "radius": 37,
+          "spread": true,
+          "spreadSpeed": 0.03,
+          "maxRadius": 15
+        },
+        {
+          "id": "demo-fan",
+          "type": "vent",
+          "name": "Вентилатор на коридора",
+          "x": 440,
+          "y": 285,
+          "strength": 0.5,
+          "direction": 90
+        },
+        {
+          "id": "demo-window",
+          "type": "window",
+          "name": "Отворен прозорец",
+          "x": 760,
+          "y": 85,
+          "strength": 0.45,
+          "open": true
+        }
+      ],
+      "backdrop": null
+    }
+  ],
+  "attachments": [],
+  "meta": {
+    "generator": "building-library",
+    "preset": "school",
+    "seed": 2026,
+    "rooms": 2,
+    "peoplePerRoom": 6,
+    "limitedPercent": 0,
+    "stairs": 1
+  }
+}

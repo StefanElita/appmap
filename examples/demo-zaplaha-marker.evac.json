@@ -1,0 +1,47 @@
+{
+  "format": "evacuation-simulator",
+  "version": "0.10.1",
+  "projectName": "Заплаха — статичен отличим символ",
+  "settings": {
+    "scenario": "lockdown",
+    "pxPerMeter": 25,
+    "preMovement": 12,
+    "populationProfiles": {
+      "children": 0,
+      "older": 0,
+      "limited": 0
+    }
+  },
+  "floors": [
+    {
+      "id": "floor1",
+      "name": "Примерен учебен етаж",
+      "items": [
+        {
+          "id": "room1",
+          "type": "room",
+          "name": "Учебна стая",
+          "x": 40,
+          "y": 40,
+          "w": 370,
+          "h": 250
+        },
+        {
+          "id": "people1",
+          "type": "people",
+          "name": "Група",
+          "x": 80,
+          "y": 130,
+          "count": 5
+        },
+        {
+          "id": "threat1",
+          "type": "threat",
+          "name": "Предупредителен символ",
+          "x": 245,
+          "y": 120
+        }
+      ]
+    }
+  ]
+}

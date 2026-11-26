@@ -1,0 +1,294 @@
+{
+  "format": "evacuation-simulator",
+  "version": "0.11.2",
+  "projectName": "Демо: автоматично скрити етикети",
+  "settings": {
+    "scenario": "fire",
+    "pxPerMeter": 25,
+    "autosave": false
+  },
+  "floors": [
+    {
+      "name": "Етаж 1",
+      "id": "lab-floor",
+      "items": [
+        {
+          "id": "lab-r0",
+          "type": "room",
+          "name": "Класна стая 1 — за проверка",
+          "x": 80,
+          "y": 175,
+          "w": 76,
+          "h": 95,
+          "people": 25,
+          "teachers": 1,
+          "width": 1.2
+        },
+        {
+          "id": "lab-r1",
+          "type": "room",
+          "name": "Класна стая 2 — за проверка",
+          "x": 162,
+          "y": 175,
+          "w": 76,
+          "h": 95,
+          "people": 25,
+          "teachers": 1,
+          "width": 1.2
+        },
+        {
+          "id": "lab-r2",
+          "type": "room",
+          "name": "Класна стая 3 — за проверка",
+          "x": 244,
+          "y": 175,
+          "w": 76,
+          "h": 95,
+          "people": 25,
+          "teachers": 1,
+          "width": 1.2
+        },
+        {
+          "id": "lab-r3",
+          "type": "room",
+          "name": "Класна стая 4 — за проверка",
+          "x": 326,
+          "y": 175,
+          "w": 76,
+          "h": 95,
+          "people": 25,
+          "teachers": 1,
+          "width": 1.2
+        },
+        {
+          "id": "lab-r4",
+          "type": "room",
+          "name": "Класна стая 5 — за проверка",
+          "x": 408,
+          "y": 175,
+          "w": 76,
+          "h": 95,
+          "people": 25,
+          "teachers": 1,
+          "width": 1.2
+        },
+        {
+          "id": "lab-r5",
+          "type": "room",
+          "name": "Класна стая 6 — за проверка",
+          "x": 490,
+          "y": 175,
+          "w": 76,
+          "h": 95,
+          "people": 25,
+          "teachers": 1,
+          "width": 1.2
+        },
+        {
+          "id": "lab-r6",
+          "type": "room",
+          "name": "Класна стая 7 — за проверка",
+          "x": 572,
+          "y": 175,
+          "w": 76,
+          "h": 95,
+          "people": 25,
+          "teachers": 1,
+          "width": 1.2
+        },
+        {
+          "id": "lab-r7",
+          "type": "room",
+          "name": "Класна стая 8 — за проверка",
+          "x": 654,
+          "y": 175,
+          "w": 76,
+          "h": 95,
+          "people": 25,
+          "teachers": 1,
+          "width": 1.2
+        },
+        {
+          "id": "lab-r8",
+          "type": "room",
+          "name": "Класна стая 9 — за проверка",
+          "x": 80,
+          "y": 280,
+          "w": 76,
+          "h": 95,
+          "people": 25,
+          "teachers": 1,
+          "width": 1.2
+        },
+        {
+          "id": "lab-r9",
+          "type": "room",
+          "name": "Класна стая 10 — за проверка",
+          "x": 162,
+          "y": 280,
+          "w": 76,
+          "h": 95,
+          "people": 25,
+          "teachers": 1,
+          "width": 1.2
+        },
+        {
+          "id": "lab-r10",
+          "type": "room",
+          "name": "Класна стая 11 — за проверка",
+          "x": 244,
+          "y": 280,
+          "w": 76,
+          "h": 95,
+          "people": 25,
+          "teachers": 1,
+          "width": 1.2
+        },
+        {
+          "id": "lab-r11",
+          "type": "room",
+          "name": "Класна стая 12 — за проверка",
+          "x": 326,
+          "y": 280,
+          "w": 76,
+          "h": 95,
+          "people": 25,
+          "teachers": 1,
+          "width": 1.2
+        },
+        {
+          "id": "lab-r12",
+          "type": "room",
+          "name": "Класна стая 13 — за проверка",
+          "x": 408,
+          "y": 280,
+          "w": 76,
+          "h": 95,
+          "people": 25,
+          "teachers": 1,
+          "width": 1.2
+        },
+        {
+          "id": "lab-r13",
+          "type": "room",
+          "name": "Класна стая 14 — за проверка",
+          "x": 490,
+          "y": 280,
+          "w": 76,
+          "h": 95,
+          "people": 25,
+          "teachers": 1,
+          "width": 1.2
+        },
+        {
+          "id": "lab-r14",
+          "type": "room",
+          "name": "Класна стая 15 — за проверка",
+          "x": 572,
+          "y": 280,
+          "w": 76,
+          "h": 95,
+          "people": 25,
+          "teachers": 1,
+          "width": 1.2
+        },
+        {
+          "id": "lab-r15",
+          "type": "room",
+          "name": "Класна стая 16 — за проверка",
+          "x": 654,
+          "y": 280,
+          "w": 76,
+          "h": 95,
+          "people": 25,
+          "teachers": 1,
+          "width": 1.2
+        },
+        {
+          "id": "lab-cor",
+          "type": "corridor",
+          "name": "Коридор (без постоянни хора)",
+          "x": 78,
+          "y": 276,
+          "w": 658,
+          "h": 52,
+          "people": 0,
+          "width": 1.6
+        },
+        {
+          "id": "lab-door0",
+          "type": "door",
+          "name": "Врата към класна стая 1",
+          "x": 118,
+          "y": 273,
+          "width": 1.2
+        },
+        {
+          "id": "lab-door1",
+          "type": "door",
+          "name": "Врата към класна стая 2",
+          "x": 200,
+          "y": 273,
+          "width": 1.2
+        },
+        {
+          "id": "lab-door2",
+          "type": "door",
+          "name": "Врата към класна стая 3",
+          "x": 282,
+          "y": 273,
+          "width": 1.2
+        },
+        {
+          "id": "lab-door3",
+          "type": "door",
+          "name": "Врата към класна стая 4",
+          "x": 364,
+          "y": 273,
+          "width": 1.2
+        },
+        {
+          "id": "lab-door4",
+          "type": "door",
+          "name": "Врата към класна стая 5",
+          "x": 446,
+          "y": 273,
+          "width": 1.2
+        },
+        {
+          "id": "lab-door5",
+          "type": "door",
+          "name": "Врата към класна стая 6",
+          "x": 528,
+          "y": 273,
+          "width": 1.2
+        },
+        {
+          "id": "lab-door6",
+          "type": "door",
+          "name": "Врата към класна стая 7",
+          "x": 610,
+          "y": 273,
+          "width": 1.2
+        },
+        {
+          "id": "lab-door7",
+          "type": "door",
+          "name": "Врата към класна стая 8",
+          "x": 692,
+          "y": 273,
+          "width": 1.2
+        },
+        {
+          "id": "lab-exit",
+          "type": "exit",
+          "name": "Авариен изход",
+          "x": 77,
+          "y": 301,
+          "width": 1.5
+        }
+      ],
+      "backdrop": null
+    }
+  ]
+}

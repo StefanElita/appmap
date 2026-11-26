@@ -1,0 +1,86 @@
+{
+  "format": "evacuation-simulator",
+  "version": "0.9.5",
+  "projectName": "Демо — плавно разпространение на огъня",
+  "settings": {
+    "scenario": "fire",
+    "pxPerMeter": 25,
+    "floorHeight": 3.2,
+    "walkSpeed": 1.25,
+    "preMovement": 20,
+    "spreadSpeed": 0.4,
+    "fireSpreadMultiplier": 0.8,
+    "showSpread": true,
+    "dynamicRouting": true,
+    "showSmoke": true,
+    "fireExitSafetyMeters": 2,
+    "fireExposureLimitSeconds": 35
+  },
+  "floors": [
+    {
+      "id": "floor1",
+      "name": "Първи етаж",
+      "items": [
+        {
+          "id": "room1",
+          "type": "room",
+          "name": "Стая с огнище",
+          "x": 100,
+          "y": 120,
+          "w": 220,
+          "h": 220,
+          "people": 4
+        },
+        {
+          "id": "room2",
+          "type": "room",
+          "name": "Съседна стая",
+          "x": 340,
+          "y": 120,
+          "w": 230,
+          "h": 220,
+          "people": 8
+        },
+        {
+          "id": "wall1",
+          "type": "wall",
+          "name": "Разделяща стена",
+          "x": 330,
+          "y": 110,
+          "x2": 330,
+          "y2": 350,
+          "thickness": 0.2
+        },
+        {
+          "id": "door1",
+          "type": "door",
+          "name": "Противопожарна врата",
+          "x": 330,
+          "y": 230,
+          "width": 1.2,
+          "fireDoorClosed": true,
+          "fireDoorCloseAtSeconds": 0
+        },
+        {
+          "id": "exit1",
+          "type": "exit",
+          "name": "Външен изход",
+          "x": 560,
+          "y": 225,
+          "width": 1.8
+        },
+        {
+          "id": "hazard1",
+          "type": "hazard",
+          "name": "Огнище",
+          "x": 160,
+          "y": 175,
+          "radius": 14,
+          "spread": true,
+          "spreadSpeed": 0.4,
+          "maxRadius": 60
+        }
+      ]
+    }
+  ]
+}
